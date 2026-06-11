@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🌍 Personal Environmental Health Analyzer</title>
+<style>
+body{font-family:Arial,sans-serif;background:#0f172a;color:#fff;margin:0;padding:20px}
+.card{background:#1e293b;padding:16px;border-radius:12px;margin:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+h1,h2{color:#38bdf8}
+select,input{padding:8px;margin:5px}
+canvas{background:#fff;border-radius:8px;max-width:100%}
+</style>
+</head>
+<body>
+<h1>🌍 Personal Environmental Health Analyzer</h1>
+<p>Responsive dashboard template with AQI, PM2.5, PM10, environmental scores, filters, rankings and recommendations.</p>
+
+<div class="grid">
+<div class="card"><h3>Average AQI</h3><div id="avg"></div></div>
+<div class="card"><h3>Highest AQI City</h3><div id="high"></div></div>
+<div class="card"><h3>Lowest AQI City</h3><div id="low"></div></div>
+<div class="card"><h3>Cities Analyzed</h3><div id="count"></div></div>
+</div>
+
+<div class="card">
+<select id="city"></select>
+</div>
+
+<div class="card">
+<canvas id="chart" height="120"></canvas>
+</div>
+
+<div class="card" id="details"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const data=[
+{name:'Greater Noida',aqi:108,pm25:107,pm10:173,water:65},
+{name:'Noida',aqi:107,pm25:95,pm10:160,water:68},
+{name:'Delhi',aqi:145,pm25:120,pm10:210,water:55},
+{name:'Jaipur',aqi:82,pm25:60,pm10:110,water:72},
+{name:'Pune',aqi:58,pm25:35,pm10:70,water:80}
+];
+document.getElementById('avg').innerText=(data.reduce((a,b)=>a+b.aqi,0)/data.length).toFixed(1);
+let hi=data.reduce((a,b)=>a.aqi>b.aqi?a:b);
+let lo=data.reduce((a,b)=>a.aqi<b.aqi?a:b);
+high.innerText=hi.name+" ("+hi.aqi+")";
+low.innerText=lo.name+" ("+lo.aqi+")";
+count.innerText=data.length;
+const sel=document.getElementById('city');
+data.forEach(d=>sel.add(new Option(d.name,d.name)));
+function render(){
+ const c=data.find(x=>x.name===sel.value)||data[0];
+ details.innerHTML=`<h2>${c.name}</h2>
+ AQI:${c.aqi}<br>PM2.5:${c.pm25}<br>PM10:${c.pm10}<br>
+ Air Score:${100-c.aqi/3|0}/100<br>Water Score:${c.water}/100`;
+}
+sel.onchange=render; sel.value=data[0].name; render();
+new Chart(document.getElementById('chart'),{
+type:'bar',
+data:{labels:data.map(d=>d.name),datasets:[{label:'AQI',data:data.map(d=>d.aqi)}]}
+});
+</script>
+</body></html>
