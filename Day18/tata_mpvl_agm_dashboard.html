@@ -1,0 +1,758 @@
+<style>
+  :root{
+    --cream:#F7F2E9;
+    --cream-deep:#EFE6D4;
+    --card:#FFFDF8;
+    --espresso:#3B2A1E;
+    --espresso-soft:#6B5644;
+    --amber:#C77F2C;
+    --amber-deep:#A35F1B;
+    --line:#E3D6BD;
+    --red:#B3413A;
+    --red-bg:#FBEBE8;
+    --orange:#B66A1F;
+    --orange-bg:#FBF0E2;
+    --green:#3F7A52;
+    --green-bg:#EAF3EC;
+    --blue:#3C5F77;
+    --blue-bg:#E9F0F4;
+    --gray:#857josh;
+  }
+
+  *{box-sizing:border-box;}
+
+  .dash-root{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    background: var(--cream);
+    color: var(--espresso);
+    padding: 28px 20px 60px;
+    line-height:1.5;
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  .dash-header{
+    margin-bottom: 28px;
+  }
+  .dash-eyebrow{
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--amber-deep);
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .dash-title{
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight:800;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  .dash-sub{
+    font-size:14px;
+    color:var(--espresso-soft);
+    margin:0;
+  }
+  .dash-meta-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:14px;
+  }
+  .meta-chip{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:6px 14px;
+    font-size:12.5px;
+    color:var(--espresso-soft);
+    font-weight:600;
+  }
+  .meta-chip b{ color:var(--espresso); }
+
+  section.dash-section{
+    margin-bottom:30px;
+  }
+  .section-title{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-weight:800;
+    color:var(--espresso);
+    margin: 0 0 14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .section-title .count{
+    background:var(--cream-deep);
+    color:var(--espresso-soft);
+    border-radius:999px;
+    font-size:11px;
+    padding:2px 9px;
+    font-weight:700;
+  }
+
+  /* Summary card */
+  .summary-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px 22px;
+    box-shadow: 0 1px 2px rgba(59,42,30,0.04);
+    font-size:14.5px;
+  }
+  .summary-card p{ margin:0 0 10px; }
+  .summary-card p:last-child{ margin-bottom:0; }
+  .urgent-banner{
+    margin-top:14px;
+    background:var(--red-bg);
+    border:1px solid #E3C5C0;
+    border-radius:12px;
+    padding:12px 16px;
+    font-size:13.5px;
+    color:var(--red);
+    font-weight:600;
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+  }
+
+  /* Key takeaway cards */
+  .kt-grid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:14px;
+  }
+  @media (max-width: 880px){ .kt-grid{ grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 520px){ .kt-grid{ grid-template-columns: 1fr; } }
+
+  .kt-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 16px 14px;
+    position:relative;
+    overflow:hidden;
+  }
+  .kt-card::before{
+    content:"";
+    position:absolute; left:0; top:0; bottom:0;
+    width:4px;
+    background:var(--amber);
+  }
+  .kt-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--espresso-soft);
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .kt-value{
+    font-size:18px;
+    font-weight:800;
+    color:var(--espresso);
+    margin-bottom:4px;
+  }
+  .kt-detail{
+    font-size:12.5px;
+    color:var(--espresso-soft);
+  }
+
+  /* Action items table */
+  .table-wrap{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+  }
+  table.action-table{
+    width:100%;
+    border-collapse: collapse;
+    font-size:13.5px;
+  }
+  table.action-table thead th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--espresso-soft);
+    background:var(--cream-deep);
+    padding:10px 14px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  table.action-table tbody td{
+    padding:12px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  table.action-table tbody tr:hover{
+    background: #FBF6EC;
+  }
+  .task-cell{ font-weight:600; min-width:220px; }
+  .task-note{ display:block; font-weight:400; color:var(--espresso-soft); font-size:12px; margin-top:3px; }
+  .owner-pill{
+    display:inline-block;
+    background:var(--blue-bg);
+    color:var(--blue);
+    border-radius:999px;
+    padding:3px 10px;
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .deadline-cell{ white-space:nowrap; font-weight:600;}
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    border-radius:999px;
+    padding:4px 11px;
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .badge.high{ background:var(--red-bg); color:var(--red); }
+  .badge.med{ background:var(--orange-bg); color:var(--orange); }
+  .badge.low{ background:var(--green-bg); color:var(--green); }
+  .badge.pending{ background:var(--cream-deep); color:var(--espresso-soft); }
+  .badge.conflict{ background:#F6E8D8; color:#8A4B12; }
+  .badge.question{ background:var(--blue-bg); color:var(--blue); }
+  .badge.done{ background:var(--green-bg); color:var(--green); text-decoration: line-through; opacity:.7; }
+
+  .row-done td { opacity:.55; }
+  .row-done .task-cell{ text-decoration: line-through; }
+
+  .check-btn{
+    border:1px solid var(--line);
+    background:var(--card);
+    border-radius:8px;
+    width:26px;height:26px;
+    cursor:pointer;
+    font-size:13px;
+    color:var(--espresso-soft);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .check-btn:hover{ background:var(--cream-deep); }
+
+  /* Mobile card view for table */
+  .mobile-cards{ display:none; }
+  @media (max-width: 700px){
+    table.action-table{ display:none; }
+    .mobile-cards{ display:block; }
+    .mc-item{
+      border-top:1px solid var(--line);
+      padding:14px 16px;
+    }
+    .mc-item:first-child{ border-top:none; }
+    .mc-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+    .mc-task{ font-weight:700; font-size:14px; }
+    .mc-row{ margin-top:8px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:12.5px; color:var(--espresso-soft); }
+  }
+
+  /* Generic content cards (open questions, risks, conflicts, notes) */
+  .card-list{
+    display:grid;
+    gap:12px;
+  }
+  .info-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-left:4px solid var(--amber);
+    border-radius:12px;
+    padding:14px 16px;
+    font-size:13.5px;
+  }
+  .info-card.risk{ border-left-color:var(--red); }
+  .info-card.question{ border-left-color:var(--blue); }
+  .info-card.conflict{ border-left-color:#8A4B12; }
+  .info-card-title{
+    font-weight:700;
+    margin-bottom:4px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .info-card-body{ color:var(--espresso-soft); }
+
+  /* Collapsible resolutions */
+  .resolution{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    margin-bottom:10px;
+    overflow:hidden;
+  }
+  .resolution-head{
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    padding:14px 16px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    font-size:14px;
+    font-weight:700;
+    color:var(--espresso);
+  }
+  .resolution-head .res-type{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    padding:3px 9px;
+    border-radius:999px;
+    background:var(--cream-deep);
+    color:var(--espresso-soft);
+    margin-left:8px;
+    white-space:nowrap;
+  }
+  .resolution-head .chev{ transition: transform .2s ease; color:var(--amber-deep); flex-shrink:0; }
+  .resolution.open .chev{ transform: rotate(180deg); }
+  .resolution-body{
+    max-height:0;
+    overflow:hidden;
+    transition: max-height .25s ease;
+    padding:0 16px;
+    font-size:13.5px;
+    color:var(--espresso-soft);
+  }
+  .resolution.open .resolution-body{ padding-bottom:16px; }
+  .resolution-body dl{ margin:0; }
+  .resolution-body dt{ font-weight:700; color:var(--espresso); margin-top:10px; }
+  .resolution-body dt:first-child{ margin-top:10px; }
+  .resolution-body dd{ margin:2px 0 0; }
+
+  .source-footer{
+    margin-top: 36px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    font-size:12px;
+    color:var(--espresso-soft);
+  }
+</style>
+
+<div class="dash-root">
+
+  <div class="dash-header">
+    <div class="dash-eyebrow">Shareholder Action Dashboard</div>
+    <h1 class="dash-title">Tata Motors Passenger Vehicles Limited — 81st AGM</h1>
+    <p class="dash-sub">Built from the AGM Notice dated May 14, 2026 (Integrated Annual Report 2025-26)</p>
+    <div class="dash-meta-row">
+      <span class="meta-chip">AGM: <b>Wed, July 8, 2026 · 10:30 AM IST</b></span>
+      <span class="meta-chip">Mode: <b>VC / OAVM only</b></span>
+      <span class="meta-chip">EVEN: <b>139531</b></span>
+      <span class="meta-chip">CIN: <b>L28920MH1945PLC004520</b></span>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <section class="dash-section">
+    <div class="section-title">Summary</div>
+    <div class="summary-card">
+      <p>This is the notice for the 81st Annual General Meeting of Tata Motors Passenger Vehicles Limited (formerly Tata Motors Limited), to be held entirely via video conferencing on Wednesday, July 8, 2026. Members will vote on 9 items: 4 ordinary business items (financial statements, dividend, and the rotational re-appointment of Mr. N Chandrasekaran) and 5 special business items (re-appointment of Independent Director Mr. Al-Noor Ramji, branch auditor authorization, cost auditor remuneration ratification, and two material related-party-transaction approvals).</p>
+      <p>Because the AGM is VC/OAVM-only, the usual proxy facility is not available — individual Members must either e-vote remotely or attend and vote live. The notice also bundles a long set of administrative deadlines (email registration, TDS forms, speaker registration, e-voting window) that carry real cut-off dates.</p>
+      <div class="urgent-banner">
+        ⚠️ <span>Today is Monday, June 22, 2026. The deadline to register an unregistered e-mail address with the RTA (to receive the Notice and e-voting credentials) is <b>5:00 PM IST today</b> — see Action Items below.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- KEY TAKEAWAYS -->
+  <section class="dash-section">
+    <div class="section-title">Key Takeaways</div>
+    <div class="kt-grid">
+      <div class="kt-card">
+        <div class="kt-label">Dividend</div>
+        <div class="kt-value">₹3.0 / share</div>
+        <div class="kt-detail">On ₹2 face value shares (150%). Record date Fri, June 19, 2026. Payment on/before "Tuseday" (sic), July 14, 2026.</div>
+      </div>
+      <div class="kt-card">
+        <div class="kt-label">Voting cut-off date</div>
+        <div class="kt-value">Wed, Jul 1, 2026</div>
+        <div class="kt-detail">Determines eligibility to cast votes (physical or demat holding).</div>
+      </div>
+      <div class="kt-card">
+        <div class="kt-label">Remote e-voting window</div>
+        <div class="kt-value">Jul 4 – Jul 7, 2026</div>
+        <div class="kt-detail">9:00 AM Sat, July 4 to 5:00 PM Tue, July 7, IST, via NSDL.</div>
+      </div>
+      <div class="kt-card">
+        <div class="kt-label">Material RPTs up for approval</div>
+        <div class="kt-value">2 resolutions</div>
+        <div class="kt-detail">Company/TPEML–FIAPL (≈₹42,312 cr combined) and JLR–Agratas Group (≈₹5,000 cr over 7 years).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACTION ITEMS -->
+  <section class="dash-section">
+    <div class="section-title">Action Items <span class="count">12</span></div>
+    <div class="table-wrap">
+      <table class="action-table" id="actionTable">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Task</th>
+            <th>Owner</th>
+            <th>Deadline</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- rows injected by JS render below, but written statically for no-JS fallback -->
+        </tbody>
+      </table>
+      <div class="mobile-cards" id="mobileCards"></div>
+    </div>
+  </section>
+
+  <!-- OPEN QUESTIONS -->
+  <section class="dash-section">
+    <div class="section-title">Open Questions <span class="count">4</span></div>
+    <div class="card-list">
+      <div class="info-card question">
+        <div class="info-card-title">❓ Deadline to request a physical copy of the Integrated Annual Report</div>
+        <div class="info-card-body">Members can request a physical copy by emailing inv_rel@tatamotors.com or investor.helpdesk@in.mpms.mufg.com — no specific cut-off date is given in the Notice. Not specified.</div>
+      </div>
+      <div class="info-card question">
+        <div class="info-card-title">❓ Total number of equity shares / total dividend outlay</div>
+        <div class="info-card-body">The Notice gives the per-share dividend (₹3.0 on ₹2 face value) but not the total outstanding share count or aggregate payout amount. Not specified.</div>
+      </div>
+      <div class="info-card question">
+        <div class="info-card-title">❓ Whether late KYC/ISR-1 submissions after the record date are still accepted</div>
+        <div class="info-card-body">The Notice ties the KYC document deadline to "the record date i.e., Friday, June 19, 2026," which has already passed relative to today. Whether the RTA still accepts late submissions before the actual payment date is not specified.</div>
+      </div>
+      <div class="info-card question">
+        <div class="info-card-title">❓ Process for Members who want to inspect documents but hold shares jointly</div>
+        <div class="info-card-body">The Notice describes inspection requests generally (name, folio/DP ID, Client ID, mobile no.) but doesn't specify a distinct process for joint holders. Not specified.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RISKS / BLOCKERS -->
+  <section class="dash-section">
+    <div class="section-title">Risks / Blockers <span class="count">5</span></div>
+    <div class="card-list">
+      <div class="info-card risk">
+        <div class="info-card-title">🔴 Invalid or inoperative PAN</div>
+        <div class="info-card-body">If PAN is not correct, invalid, or inoperative, tax on the dividend will be deducted at a higher rate and TDS credit will not be available (Section 397 of the IT Act).</div>
+      </div>
+      <div class="info-card risk">
+        <div class="info-card-title">🔴 KYC non-compliance blocks dividend payout (physical holders)</div>
+        <div class="info-card-body">Folios must be KYC compliant to receive dividends electronically; required documents (Form ISR-1, cancelled cheque, self-attested PAN/address proof, Form SH-13/ISR-3) must reach the RTA by the record date.</div>
+      </div>
+      <div class="info-card risk">
+        <div class="info-card-title">🟠 No proxy facility for this AGM</div>
+        <div class="info-card-body">Because the meeting is VC/OAVM-only, individual Members cannot appoint a proxy. Only institutional/corporate Members can appoint an authorized representative under Sections 112/113.</div>
+      </div>
+      <div class="info-card risk">
+        <div class="info-card-title">🟠 E-voting login lockout</div>
+        <div class="info-card-body">The NSDL e-voting login disables after five unsuccessful password attempts, requiring a "Forgot Password" reset before voting can proceed.</div>
+      </div>
+      <div class="info-card risk">
+        <div class="info-card-title">🟢 Dormant demat accounts</div>
+        <div class="info-card-body">Members are advised not to leave demat accounts dormant for long, to reduce fraud risk and keep holdings statements current.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFLICTS -->
+  <section class="dash-section">
+    <div class="section-title">Conflicts <span class="count">2</span></div>
+    <div class="card-list">
+      <div class="info-card conflict">
+        <div class="info-card-title">⚠️ Typo in dividend payment date</div>
+        <div class="info-card-body">The Notice states the dividend will be paid "on before Tuseday, July 14, 2026" — "Tuseday" appears to be a typo for "Tuesday" in the source document, reproduced here exactly as written.</div>
+      </div>
+      <div class="info-card conflict">
+        <div class="info-card-title">⚠️ Record-date-linked deadlines fall before today's date</div>
+        <div class="info-card-body">The dividend record date (Friday, June 19, 2026) and the KYC/Form ISR-1 submission deadline tied to it have already passed as of today, June 22, 2026 — yet the e-mail registration deadline elsewhere in the same Notice is set for today, June 22, 2026. The Notice doesn't reconcile this; Members should not assume the record-date items are still open.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADDITIONAL NOTES -->
+  <section class="dash-section">
+    <div class="section-title">Additional Notes — Resolutions &amp; Reference Details</div>
+
+    <div id="resolutions"></div>
+
+    <div class="kt-grid" style="margin-top:18px; grid-template-columns: repeat(3,1fr);">
+      <div class="kt-card">
+        <div class="kt-label">Company Secretary</div>
+        <div class="kt-value" style="font-size:15px;">Maloy Kumar Gupta</div>
+        <div class="kt-detail">ACS No: 24123 · inv_rel@tatamotors.com</div>
+      </div>
+      <div class="kt-card">
+        <div class="kt-label">Scrutinizer</div>
+        <div class="kt-value" style="font-size:15px;">Mr. P N Parikh</div>
+        <div class="kt-detail">M/s Parikh &amp; Associates (failing him: Ms. Sarvari Shah, then Ms. Anuja Parikh)</div>
+      </div>
+      <div class="kt-card">
+        <div class="kt-label">Registered Office</div>
+        <div class="kt-value" style="font-size:15px;">Bombay House</div>
+        <div class="kt-detail">24, Homi Mody Street, Mumbai 400 001 · +91 22 6665 8282</div>
+      </div>
+      <div class="kt-card">
+        <div class="kt-label">NSDL e-voting helpdesk</div>
+        <div class="kt-value" style="font-size:15px;">+91 22 4886 7000</div>
+        <div class="kt-detail">evoting@nsdl.com · Contact: Mr. Sanjeev Yadav, Deputy Manager</div>
+      </div>
+      <div class="kt-card">
+        <div class="kt-label">CDSL e-voting helpdesk</div>
+        <div class="kt-value" style="font-size:15px;">1800 21 09911 (toll-free)</div>
+        <div class="kt-detail">helpdesk.evoting@cdslindia.com</div>
+      </div>
+      <div class="kt-card">
+        <div class="kt-label">Re-lodgement window (pre-Apr 2019 physical transfers)</div>
+        <div class="kt-value" style="font-size:15px;">Until Feb 4, 2027</div>
+        <div class="kt-detail">Credited only in dematerialised form; 1-year lock-in from registration.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="source-footer">
+    Source: Notice of the 81st AGM of Tata Motors Passenger Vehicles Limited, pursuant to Section 101 of the Companies Act, 2013 — dated May 14, 2026. All figures, dates, and names reproduced as stated in the source document; nothing has been inferred or estimated.
+  </div>
+</div>
+
+<script>
+(function(){
+  var actions = [
+    {
+      task: "Register e-mail address with RTA",
+      note: "Required only if your e-mail isn't already registered with the Company/DP — to receive AGM credentials.",
+      owner: "Member (unregistered e-mail)",
+      deadline: "Mon, Jun 22, 2026 · 5:00 PM IST",
+      status: "high", label: "🔴 Due Today"
+    },
+    {
+      task: "Submit TDS exemption / lower-rate documents",
+      note: "Form 121 (resident, income below taxable limit) or treaty documents (non-residents/FPIs).",
+      owner: "Member",
+      deadline: "Tue, Jun 23, 2026 · by 7:00 PM IST",
+      status: "high", label: "🔴 High Priority"
+    },
+    {
+      task: "Register as a speaker shareholder",
+      note: "Only registered speakers may ask questions live during the AGM.",
+      owner: "Member (optional)",
+      deadline: "Sat, Jun 27 (9 AM) – Mon, Jun 29, 2026 (5 PM IST)",
+      status: "med", label: "🟠 Medium Priority"
+    },
+    {
+      task: "Submit advance questions on financials / AGM matters",
+      note: "Send from registered e-mail with name, DP ID/Client ID or Folio No., mobile no.",
+      owner: "Member (optional)",
+      deadline: "Before Wed, Jul 1, 2026 · 5:00 PM IST",
+      status: "med", label: "🟠 Medium Priority"
+    },
+    {
+      task: "Hold shares as of the voting cut-off date",
+      note: "Determines voting eligibility and voting-rights proportion.",
+      owner: "Member",
+      deadline: "Wed, Jul 1, 2026",
+      status: "pending", label: "⏳ Pending"
+    },
+    {
+      task: "Cast vote via remote e-voting (NSDL)",
+      note: "Members may also vote during the AGM if they haven't already voted on a resolution.",
+      owner: "Member",
+      deadline: "Sat, Jul 4 (9 AM) – Tue, Jul 7, 2026 (5 PM IST)",
+      status: "med", label: "🟠 Medium Priority"
+    },
+    {
+      task: "Join AGM via VC/OAVM and vote (if not voted remotely)",
+      note: "Join link opens 30 minutes before start time.",
+      owner: "Member",
+      deadline: "Wed, Jul 8, 2026 · 10:30 AM IST",
+      status: "med", label: "🟠 Medium Priority"
+    },
+    {
+      task: "Submit KYC / bank details (Form ISR-1, etc.) for dividend",
+      note: "Physical-form holders only — original cheque copy, self-attested PAN, address proof, ISR-2, SH-13/ISR-3.",
+      owner: "Member (physical shares)",
+      deadline: "On/before Fri, Jun 19, 2026 (record date)",
+      status: "conflict", label: "⚠️ Conflict — date already passed"
+    },
+    {
+      task: "Receive dividend payout (₹3/share, subject to TDS)",
+      note: "Electronic mode only. Date reproduced exactly as in Notice (contains a typo: \"Tuseday\").",
+      owner: "Company",
+      deadline: "On/before \"Tuseday\", Jul 14, 2026",
+      status: "pending", label: "⏳ Pending"
+    },
+    {
+      task: "Request physical copy of Integrated Annual Report",
+      note: "Only if needed — e-mail inv_rel@tatamotors.com or investor.helpdesk@in.mpms.mufg.com with Folio/DP ID & Client ID.",
+      owner: "Member (optional)",
+      deadline: "Not specified",
+      status: "question", label: "❓ Open Question"
+    },
+    {
+      task: "Inspect AGM-related documents electronically",
+      note: "Register of Directors/KMP, Register of Contracts, RPT-related documents.",
+      owner: "Member (optional)",
+      deadline: "Up to date of AGM (Jul 8, 2026)",
+      status: "low", label: "🟢 Low Priority"
+    },
+    {
+      task: "Re-lodge pre-Apr 2019 physical share transfer requests",
+      note: "Special window for previously rejected/unprocessed transfer deeds. Credited in demat form only; 1-year lock-in.",
+      owner: "Member (if applicable)",
+      deadline: "Until Feb 4, 2027",
+      status: "low", label: "🟢 Low Priority"
+    }
+  ];
+
+  var badgeClassMap = { high:"high", med:"med", low:"low", pending:"pending", conflict:"conflict", question:"question" };
+
+  var tbody = document.querySelector("#actionTable tbody");
+  var mobileWrap = document.getElementById("mobileCards");
+
+  function render(){
+    tbody.innerHTML = "";
+    mobileWrap.innerHTML = "";
+    actions.forEach(function(item, idx){
+      var tr = document.createElement("tr");
+      tr.id = "row-" + idx;
+      if(item.done){ tr.className = "row-done"; }
+
+      var tdCheck = document.createElement("td");
+      var btn = document.createElement("button");
+      btn.className = "check-btn";
+      btn.title = "Mark as completed";
+      btn.textContent = item.done ? "✓" : "";
+      btn.onclick = function(){ item.done = !item.done; render(); };
+      tdCheck.appendChild(btn);
+      tr.appendChild(tdCheck);
+
+      var tdTask = document.createElement("td");
+      tdTask.className = "task-cell";
+      tdTask.innerHTML = item.task + (item.note ? '<span class="task-note">' + item.note + '</span>' : '');
+      tr.appendChild(tdTask);
+
+      var tdOwner = document.createElement("td");
+      tdOwner.innerHTML = '<span class="owner-pill">' + item.owner + '</span>';
+      tr.appendChild(tdOwner);
+
+      var tdDeadline = document.createElement("td");
+      tdDeadline.className = "deadline-cell";
+      tdDeadline.textContent = item.deadline;
+      tr.appendChild(tdDeadline);
+
+      var tdStatus = document.createElement("td");
+      var cls = item.done ? "done" : badgeClassMap[item.status];
+      tdStatus.innerHTML = '<span class="badge ' + cls + '">' + (item.done ? "✅ Completed" : item.label) + '</span>';
+      tr.appendChild(tdStatus);
+
+      tbody.appendChild(tr);
+
+      // mobile card
+      var mc = document.createElement("div");
+      mc.className = "mc-item" + (item.done ? " row-done" : "");
+      mc.innerHTML =
+        '<div class="mc-top"><div class="mc-task">' + item.task + '</div>' +
+        '<button class="check-btn" style="flex-shrink:0;">' + (item.done ? "✓" : "") + '</button></div>' +
+        (item.note ? '<div class="task-note" style="margin-top:4px;">' + item.note + '</div>' : '') +
+        '<div class="mc-row"><span class="owner-pill">' + item.owner + '</span><span>' + item.deadline + '</span></div>' +
+        '<div class="mc-row"><span class="badge ' + cls + '">' + (item.done ? "✅ Completed" : item.label) + '</span></div>';
+      mc.querySelector(".check-btn").onclick = function(){ item.done = !item.done; render(); };
+      mobileWrap.appendChild(mc);
+    });
+  }
+  render();
+
+  // Resolutions (collapsible)
+  var resolutions = [
+    {
+      num: "Item 1", type: "Ordinary Business",
+      title: "Adopt Audited Standalone Financial Statements (FY ended Mar 31, 2026)",
+      body: [["Nature", "Together with Reports of the Board of Directors and the Auditors."]]
+    },
+    {
+      num: "Item 2", type: "Ordinary Business",
+      title: "Adopt Audited Consolidated Financial Statements (FY ended Mar 31, 2026)",
+      body: [["Nature", "Together with the Report of the Auditors."]]
+    },
+    {
+      num: "Item 3", type: "Ordinary Business",
+      title: "Declare Dividend on Equity Shares (FY ended Mar 31, 2026)",
+      body: [["Amount", "₹3.0 per equity share of ₹2 each (150%)"], ["Record date", "Friday, June 19, 2026"], ["Payment date", "On/before \"Tuseday\" [sic], July 14, 2026, electronic mode only"]]
+    },
+    {
+      num: "Item 4", type: "Ordinary Business",
+      title: "Re-appointment of Director retiring by rotation — Mr. N Chandrasekaran",
+      body: [["DIN", "00121863"], ["Role", "Chairman, Non-Independent Non-Executive Director"], ["Basis", "Retires by rotation under Section 152(6); eligible and offers himself for re-appointment"]]
+    },
+    {
+      num: "Item 5", type: "Special Resolution",
+      title: "Re-appointment of Mr. Al-Noor Ramji as Independent Director — Second Term",
+      body: [["DIN", "00230865"], ["First term", "May 1, 2022 – April 30, 2027"], ["Second term", "May 1, 2027 – May 17, 2029 (until age 75, per Tata Governance Guidelines)"], ["Basis", "Recommended by Nomination & Remuneration Committee; meets independence criteria under Section 149(6) and Reg 16(1)(b) SEBI Listing Regulations"]]
+    },
+    {
+      num: "Item 6", type: "Ordinary Resolution",
+      title: "Authorize Board to Appoint Branch Auditors (outside India)",
+      body: [["Basis", "Section 143(8) of the Companies Act, 2013 — for existing or future branch offices outside India"]]
+    },
+    {
+      num: "Item 7", type: "Ordinary Resolution",
+      title: "Ratify Cost Auditor's Remuneration",
+      body: [["Cost Auditor", "M/s Mani & Co., Cost Accountants (Firm Reg. No. 000004)"], ["Remuneration", "₹9,00,000 plus applicable taxes, travel & out-of-pocket expenses"], ["Period audited", "FY ending March 31, 2027"]]
+    },
+    {
+      num: "Item 8", type: "Ordinary Resolution",
+      title: "Material RPT — Company &amp; TPEML with Fiat India Automobiles Pvt Ltd (FIAPL)",
+      body: [
+        ["Related party", "FIAPL — joint operations company (50% held by Company); manufactures vehicles, engines, powertrains"],
+        ["Aggregate value (FY27)", "Company–FIAPL: ₹32,978 crore · TPEML–FIAPL: ₹9,334 crore"],
+        ["Basis", "Existing Contract Manufacturing Agreement (CMA); arm's-length pricing, ordinary course of business"],
+        ["Director interest", "Mr. Dhiman Gupta, CFO &amp; KMP of the Company, is a Non-Executive Director of FIAPL"]
+      ]
+    },
+    {
+      num: "Item 9", type: "Ordinary Resolution",
+      title: "Material RPT — Jaguar Land Rover (JLR) with Agratas Group",
+      body: [
+        ["Related party", "Agratas Energy Storage Solutions (India) and Agratas Limited (UK) — subsidiaries of Tata Sons, the Company's promoter"],
+        ["Aggregate value", "Likely to exceed ₹5,000 crore over a 7-year agreement; ≈₹400 crore likely in FY27"],
+        ["Purpose", "Multi-year supply agreement for prismatic battery cells for future JLR vehicles"],
+        ["Director interest", "Mr. P. B. Balaji (Board member of the Company, CEO of JLR) is also a Non-Executive Director of Agratas India"]
+      ]
+    }
+  ];
+
+  var resWrap = document.getElementById("resolutions");
+  resolutions.forEach(function(r, i){
+    var div = document.createElement("div");
+    div.className = "resolution";
+    var bodyHtml = '<dl>' + r.body.map(function(pair){
+      return '<dt>' + pair[0] + '</dt><dd>' + pair[1] + '</dd>';
+    }).join('') + '</dl>';
+    div.innerHTML =
+      '<button class="resolution-head" data-idx="' + i + '">' +
+        '<span>' + r.num + ' — ' + r.title + '<span class="res-type">' + r.type + '</span></span>' +
+        '<span class="chev">▾</span>' +
+      '</button>' +
+      '<div class="resolution-body">' + bodyHtml + '</div>';
+    resWrap.appendChild(div);
+  });
+  resWrap.querySelectorAll(".resolution-head").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var parent = btn.closest(".resolution");
+      var isOpen = parent.classList.contains("open");
+      if(isOpen){
+        parent.classList.remove("open");
+        parent.querySelector(".resolution-body").style.maxHeight = null;
+      } else {
+        parent.classList.add("open");
+        var body = parent.querySelector(".resolution-body");
+        body.style.maxHeight = body.scrollHeight + 40 + "px";
+      }
+    });
+  });
+})();
+</script>
