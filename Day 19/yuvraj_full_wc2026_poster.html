@@ -1,0 +1,345 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#111;display:flex;justify-content:center;align-items:flex-start;padding:20px;font-family:'Inter',sans-serif;}
+.poster{
+  width:520px;
+  background:#0c0b0e;
+  position:relative;
+  overflow:hidden;
+  border-radius:18px;
+  border:0.5px solid rgba(200,140,40,0.2);
+}
+/* Background scene */
+.bg-scene{
+  position:absolute;inset:0;z-index:0;
+  background: linear-gradient(160deg, #0f0c10 0%, #0c0b0e 40%, #100d08 100%);
+}
+.bg-grid{
+  position:absolute;inset:0;z-index:1;
+  background-image:linear-gradient(rgba(255,255,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.018) 1px,transparent 1px);
+  background-size:36px 36px;
+}
+/* Pitch silhouette */
+.pitch-bg{
+  position:absolute;bottom:0;left:0;right:0;height:260px;z-index:2;
+  background: linear-gradient(to top, rgba(10,40,15,0.35) 0%, transparent 100%);
+}
+.pitch-lines{
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:340px;height:180px;z-index:3;
+  border:0.5px solid rgba(255,255,255,0.06);
+  border-bottom:none;
+  border-radius:0;
+}
+.pitch-circle{
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:120px;height:60px;
+  border:0.5px solid rgba(255,255,255,0.06);
+  border-bottom:none;
+  border-radius:60px 60px 0 0;
+}
+/* Glows */
+.glow-gold{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(200,130,20,0.18) 0%,transparent 65%);top:-80px;right:-120px;z-index:2;pointer-events:none;}
+.glow-blue{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(50,70,200,0.13) 0%,transparent 65%);top:100px;left:-100px;z-index:2;pointer-events:none;}
+.glow-bottom{position:absolute;width:600px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(180,100,10,0.12) 0%,transparent 70%);bottom:-100px;left:50%;transform:translateX(-50%);z-index:2;pointer-events:none;}
+/* Corners */
+.corner{position:absolute;width:18px;height:18px;z-index:10;}
+.c-tl{top:12px;left:12px;border-top:1.5px solid rgba(200,140,40,0.5);border-left:1.5px solid rgba(200,140,40,0.5);}
+.c-tr{top:12px;right:12px;border-top:1.5px solid rgba(200,140,40,0.5);border-right:1.5px solid rgba(200,140,40,0.5);}
+.c-bl{bottom:12px;left:12px;border-bottom:1.5px solid rgba(200,140,40,0.5);border-left:1.5px solid rgba(200,140,40,0.5);}
+.c-br{bottom:12px;right:12px;border-bottom:1.5px solid rgba(200,140,40,0.5);border-right:1.5px solid rgba(200,140,40,0.5);}
+/* Content */
+.content{position:relative;z-index:5;padding:28px 28px 24px;}
+/* Top bar */
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.brand-pill{display:flex;align-items:center;gap:6px;border:0.5px solid rgba(200,140,40,0.4);border-radius:20px;padding:4px 12px;background:rgba(200,130,20,0.08);}
+.brand-dot{width:5px;height:5px;border-radius:50%;background:#c87820;}
+.brand-txt{font-size:9px;font-weight:600;color:#c87820;letter-spacing:0.12em;text-transform:uppercase;}
+.date-lbl{font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:0.1em;}
+/* Hero headline */
+.eyebrow{font-size:9px;font-weight:500;color:rgba(200,140,40,0.6);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.e-line{flex:1;height:0.5px;background:rgba(200,140,40,0.2);}
+.headline{font-size:30px;font-weight:900;line-height:1.05;color:#f5f0e8;letter-spacing:-0.02em;margin-bottom:6px;}
+.headline span{color:#c87820;}
+.subline{font-size:10px;font-weight:300;color:rgba(245,240,232,0.35);letter-spacing:0.06em;margin-bottom:20px;}
+
+/* Trophy scene */
+.trophy-scene{
+  width:100%;height:170px;
+  background:linear-gradient(135deg,#12100e 0%,#1a1510 50%,#120f0a 100%);
+  border-radius:12px;
+  border:0.5px solid rgba(200,140,40,0.15);
+  position:relative;overflow:hidden;
+  margin-bottom:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.trophy-glow-g{position:absolute;width:200px;height:200px;background:radial-gradient(circle,rgba(200,160,20,0.25) 0%,transparent 65%);left:-20px;top:50%;transform:translateY(-50%);pointer-events:none;}
+.trophy-glow-s{position:absolute;width:160px;height:160px;background:radial-gradient(circle,rgba(160,180,210,0.15) 0%,transparent 65%);right:-10px;top:50%;transform:translateY(-50%);pointer-events:none;}
+.trophy-rim-l{position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,transparent,rgba(200,160,30,0.6),transparent);}
+.trophy-rim-r{position:absolute;right:0;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,transparent,rgba(160,180,210,0.4),transparent);}
+.teams-row{display:flex;align-items:flex-end;justify-content:center;gap:0;width:100%;padding:16px 20px 14px;position:relative;z-index:2;}
+.team-block{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.team-block.gold{flex:1.1;}
+.team-block.silver{flex:0.9;}
+.trophy-icon{font-size:36px;line-height:1;filter:drop-shadow(0 0 12px rgba(200,160,20,0.6));}
+.trophy-icon.s{font-size:28px;filter:drop-shadow(0 0 8px rgba(180,200,220,0.5));opacity:0.85;}
+.flag-big{font-size:28px;margin-bottom:2px;}
+.flag-sm{font-size:22px;margin-bottom:2px;}
+.team-name-g{font-size:15px;font-weight:800;color:#f0d060;letter-spacing:0.02em;}
+.team-name-s{font-size:12px;font-weight:700;color:#b0c4d8;letter-spacing:0.02em;}
+.team-role-g{font-size:8px;font-weight:600;color:rgba(240,200,60,0.6);letter-spacing:0.12em;text-transform:uppercase;}
+.team-role-s{font-size:8px;font-weight:500;color:rgba(160,190,210,0.55);letter-spacing:0.1em;text-transform:uppercase;}
+.conf-g{font-size:10px;font-weight:700;color:#c87820;background:rgba(200,140,20,0.12);border:0.5px solid rgba(200,140,20,0.3);border-radius:8px;padding:2px 7px;}
+.conf-s{font-size:10px;font-weight:700;color:#8ab0cc;background:rgba(140,170,200,0.1);border:0.5px solid rgba(140,170,200,0.25);border-radius:8px;padding:2px 7px;}
+.vs-badge{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 12px;padding-bottom:24px;}
+.vs-text{font-size:11px;font-weight:700;color:rgba(255,255,255,0.15);letter-spacing:0.08em;}
+.vs-line{width:0.5px;height:20px;background:rgba(255,255,255,0.08);}
+/* Divider */
+.divider{height:0.5px;background:rgba(255,255,255,0.06);margin:14px 0;}
+/* 3-col predictions */
+.pred-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+.pred-card{background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 8px;}
+.pred-card.highlight{border-color:rgba(200,140,40,0.3);background:rgba(200,130,20,0.07);}
+.pred-flag{font-size:20px;margin-bottom:4px;}
+.pred-role{font-size:8px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:3px;}
+.role-w{color:#c87820;}
+.role-r{color:#8ab0cc;}
+.role-d{color:#7ec87e;}
+.pred-country{font-size:11px;font-weight:700;color:#f5f0e8;margin-bottom:3px;}
+.conf-bar-wrap{margin:5px 0 4px;}
+.conf-row{display:flex;justify-content:space-between;font-size:8px;margin-bottom:3px;}
+.conf-lbl{color:rgba(255,255,255,0.3);}
+.conf-pct{font-weight:600;}
+.pct-g{color:#c87820;}
+.pct-s{color:#8ab0cc;}
+.pct-d{color:#7ec87e;}
+.bar-track{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;}
+.bar-fill{height:3px;border-radius:2px;}
+.fill-g{background:linear-gradient(90deg,#c87820,#f0d060);}
+.fill-s{background:linear-gradient(90deg,#6090b0,#b0d0e8);}
+.fill-d{background:linear-gradient(90deg,#3a8a3a,#7ec87e);}
+.pred-evidence{font-size:8px;color:rgba(255,255,255,0.28);line-height:1.5;margin-top:5px;}
+.pred-risk{font-size:8px;color:rgba(220,80,60,0.55);margin-top:3px;}
+/* Scorer section */
+.scorer-section{background:rgba(255,255,255,0.025);border:0.5px solid rgba(200,140,40,0.18);border-radius:10px;padding:10px 12px;margin-bottom:12px;}
+.section-ttl{font-size:9px;font-weight:600;color:rgba(200,140,40,0.7);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.section-ttl::after{content:'';flex:1;height:0.5px;background:rgba(200,140,40,0.15);}
+.scorer-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid rgba(255,255,255,0.05);}
+.scorer-row:last-child{border-bottom:none;}
+.scorer-rank{font-size:9px;font-weight:700;width:14px;color:rgba(255,255,255,0.2);}
+.scorer-rank.r1{color:#f0d060;}
+.scorer-flag{font-size:13px;}
+.scorer-info{flex:1;}
+.scorer-name{font-size:10px;font-weight:600;color:#f5f0e8;}
+.scorer-meta{font-size:8px;color:rgba(255,255,255,0.3);}
+.scorer-goals{font-size:11px;font-weight:800;color:#c87820;}
+.fire{font-size:10px;}
+/* Players grid */
+.players-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:12px;}
+.player-card{background:rgba(255,255,255,0.025);border:0.5px solid rgba(255,255,255,0.07);border-radius:8px;padding:8px 6px;text-align:center;}
+.p-flag{font-size:14px;margin-bottom:2px;}
+.p-name{font-size:8px;font-weight:600;color:#f5f0e8;margin-bottom:1px;line-height:1.2;}
+.p-role{font-size:7px;color:rgba(255,255,255,0.3);}
+.p-rating{font-size:10px;font-weight:700;color:#c87820;margin-top:3px;}
+/* Profile row */
+.profile-row{display:flex;align-items:center;gap:10px;background:rgba(200,130,20,0.06);border:0.5px solid rgba(200,140,40,0.2);border-radius:10px;padding:10px 12px;margin-bottom:12px;}
+.avatar-circle{width:38px;height:38px;border-radius:50%;background:#1e1a22;border:1.5px solid rgba(200,140,40,0.4);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#c87820;flex-shrink:0;}
+.profile-info{flex:1;}
+.profile-name{font-size:12px;font-weight:700;color:#f5f0e8;}
+.profile-arch{font-size:9px;color:#c87820;font-weight:500;letter-spacing:0.04em;}
+.profile-stats{display:flex;gap:10px;margin-top:4px;}
+.ps{font-size:8px;color:rgba(255,255,255,0.35);}
+.ps strong{color:rgba(200,140,40,0.8);font-weight:600;}
+/* Bottom bar */
+.bottom-bar{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:0.5px solid rgba(255,255,255,0.06);}
+.powered{display:flex;align-items:center;gap:5px;font-size:8px;color:rgba(255,255,255,0.2);letter-spacing:0.06em;}
+.powered-dot{width:4px;height:4px;border-radius:50%;background:#c87820;opacity:0.6;}
+.footer-r{font-size:8px;color:rgba(255,255,255,0.15);letter-spacing:0.1em;}
+</style>
+</head>
+<body>
+<div class="poster">
+  <div class="bg-scene"></div>
+  <div class="bg-grid"></div>
+  <div class="pitch-bg"></div>
+  <div class="pitch-lines"></div>
+  <div class="pitch-circle"></div>
+  <div class="glow-gold"></div>
+  <div class="glow-blue"></div>
+  <div class="glow-bottom"></div>
+  <div class="corner c-tl"></div>
+  <div class="corner c-tr"></div>
+  <div class="corner c-bl"></div>
+  <div class="corner c-br"></div>
+
+  <div class="content">
+
+    <!-- Top bar -->
+    <div class="top-bar">
+      <div class="brand-pill"><div class="brand-dot"></div><span class="brand-txt">FIFA World Cup 2026</span></div>
+      <span class="date-lbl">June 2026 · Live Analysis</span>
+    </div>
+
+    <!-- Headline -->
+    <div class="eyebrow">Football Intelligence Hub <div class="e-line"></div></div>
+    <div class="headline">World Cup 2026<br><span>Full Prediction</span><br>Report</div>
+    <div class="subline">AI-powered · Data-driven · WC 2026 group stage analysis</div>
+
+    <!-- Trophy Scene -->
+    <div class="trophy-scene">
+      <div class="trophy-glow-g"></div>
+      <div class="trophy-glow-s"></div>
+      <div class="trophy-rim-l"></div>
+      <div class="trophy-rim-r"></div>
+      <div class="teams-row">
+        <!-- Winner -->
+        <div class="team-block gold">
+          <div class="trophy-icon">🏆</div>
+          <div class="flag-big">🇦🇷</div>
+          <div class="team-name-g">ARGENTINA</div>
+          <div class="team-role-g">⭐ World Champion</div>
+          <div class="conf-g">72% confidence</div>
+        </div>
+        <div class="vs-badge">
+          <div class="vs-line"></div>
+          <div class="vs-text">VS</div>
+          <div class="vs-line"></div>
+        </div>
+        <!-- Runner-up -->
+        <div class="team-block silver">
+          <div class="trophy-icon s">🥈</div>
+          <div class="flag-sm">🇫🇷</div>
+          <div class="team-name-s">FRANCE</div>
+          <div class="team-role-s">Runner-up</div>
+          <div class="conf-s">61% confidence</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 Predictions -->
+    <div class="pred-3">
+      <div class="pred-card highlight">
+        <div class="pred-flag">🇦🇷</div>
+        <div class="pred-role role-w">🥇 Winner</div>
+        <div class="pred-country">Argentina</div>
+        <div class="conf-bar-wrap">
+          <div class="conf-row"><span class="conf-lbl">Confidence</span><span class="conf-pct pct-g">72%</span></div>
+          <div class="bar-track"><div class="bar-fill fill-g" style="width:72%"></div></div>
+        </div>
+        <div class="pred-evidence">Rank #1 · 6pts · 68% win rate · 3-0 vs Algeria · Defending champs</div>
+        <div class="pred-risk">⚠ Messi age 38</div>
+      </div>
+      <div class="pred-card">
+        <div class="pred-flag">🇫🇷</div>
+        <div class="pred-role role-r">🥈 Runner-up</div>
+        <div class="pred-country">France</div>
+        <div class="conf-bar-wrap">
+          <div class="conf-row"><span class="conf-lbl">Confidence</span><span class="conf-pct pct-s">61%</span></div>
+          <div class="bar-track"><div class="bar-fill fill-s" style="width:61%"></div></div>
+        </div>
+        <div class="pred-evidence">Rank #3 · Mbappé 95 rated · 2022 finalists · 62% win rate</div>
+        <div class="pred-risk">⚠ 8 conceded recent</div>
+      </div>
+      <div class="pred-card">
+        <div class="pred-flag">🇩🇪</div>
+        <div class="pred-role role-d">🌟 Dark Horse</div>
+        <div class="pred-country">Germany</div>
+        <div class="conf-bar-wrap">
+          <div class="conf-row"><span class="conf-lbl">Confidence</span><span class="conf-pct pct-d">38%</span></div>
+          <div class="bar-track"><div class="bar-fill fill-d" style="width:38%"></div></div>
+        </div>
+        <div class="pred-evidence">7-1 vs Curaçao · 6pts Group E · 22 goals in 10 games</div>
+        <div class="pred-risk">⚠ Rank #9 · Harder path</div>
+      </div>
+    </div>
+
+    <!-- Top Scorers -->
+    <div class="scorer-section">
+      <div class="section-ttl">🔥 Highest Goal Scorers to Watch</div>
+      <div class="scorer-row">
+        <div class="scorer-rank r1">1</div>
+        <div class="scorer-flag">🇳🇴</div>
+        <div class="scorer-info">
+          <div class="scorer-name">Erling Haaland</div>
+          <div class="scorer-meta">Norway · Striker · Group I leader</div>
+        </div>
+        <div class="scorer-goals">25 ⚽</div>
+        <div class="fire">🔥</div>
+      </div>
+      <div class="scorer-row">
+        <div class="scorer-rank">2</div>
+        <div class="scorer-flag">🇫🇷</div>
+        <div class="scorer-info">
+          <div class="scorer-name">Kylian Mbappé</div>
+          <div class="scorer-meta">France · Forward · 95 rated</div>
+        </div>
+        <div class="scorer-goals">22 ⚽</div>
+      </div>
+      <div class="scorer-row">
+        <div class="scorer-rank">3</div>
+        <div class="scorer-flag">🇦🇷</div>
+        <div class="scorer-info">
+          <div class="scorer-name">Lionel Messi</div>
+          <div class="scorer-meta">Argentina · Forward · 96 rated</div>
+        </div>
+        <div class="scorer-goals">20 ⚽</div>
+      </div>
+    </div>
+
+    <!-- Players to Watch -->
+    <div class="players-4">
+      <div class="player-card">
+        <div class="p-flag">🇦🇷</div>
+        <div class="p-name">Messi</div>
+        <div class="p-role">Argentina</div>
+        <div class="p-rating">96</div>
+      </div>
+      <div class="player-card">
+        <div class="p-flag">🇫🇷</div>
+        <div class="p-name">Mbappé</div>
+        <div class="p-role">France</div>
+        <div class="p-rating">95</div>
+      </div>
+      <div class="player-card">
+        <div class="p-flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</div>
+        <div class="p-name">Bellingham</div>
+        <div class="p-role">England</div>
+        <div class="p-rating">91</div>
+      </div>
+      <div class="player-card">
+        <div class="p-flag">🇳🇴</div>
+        <div class="p-name">Haaland</div>
+        <div class="p-role">Norway</div>
+        <div class="p-rating">94</div>
+      </div>
+    </div>
+
+    <!-- User Profile -->
+    <div class="profile-row">
+      <div class="avatar-circle">Y</div>
+      <div class="profile-info">
+        <div class="profile-name">Yuvraj · Football Expert</div>
+        <div class="profile-arch">✦ Tactical Visionary Archetype</div>
+        <div class="profile-stats">
+          <span class="ps">IQ Score <strong>92/100</strong></span>
+          <span class="ps">Quiz <strong>5/5</strong></span>
+          <span class="ps">Messi Match <strong>71%</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom -->
+    <div class="bottom-bar">
+      <div class="powered"><div class="powered-dot"></div> Powered by Claude AI · ABTalks Intelligence</div>
+      <span class="footer-r">FIFA WC 2026 · June 2026</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
