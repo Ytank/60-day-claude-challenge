@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Learning Studio — RAG Basics</title>
+<style>
+:root{
+  --bg:#0a0e1a; --bg2:#0f1428; --panel:#141a33; --panel2:#1a2140; --border:#2a3358;
+  --text:#e9ecff; --muted:#8b93c4; --cyan:#5eead4; --violet:#a78bfa; --warn:#fbbf24;
+  --good:#34d399; --bad:#f87171; --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; min-height:100vh; background:var(--bg); color:var(--text);
+  font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  background-image:
+    radial-gradient(ellipse at 20% -10%, rgba(94,234,212,0.08), transparent 50%),
+    radial-gradient(ellipse at 90% 10%, rgba(167,139,250,0.08), transparent 50%);
+}
+.app{max-width:960px; margin:0 auto; padding:28px 20px 80px;}
+
+/* Top bar */
+.topbar{
+  display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;
+  padding-bottom:16px; border-bottom:1px solid var(--border);
+}
+.brand{font-weight:700; font-size:1.05em; letter-spacing:.3px;}
+.brand span{background:linear-gradient(90deg,var(--cyan),var(--violet)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.reward{display:flex; align-items:center; gap:10px; font-size:.85em; color:var(--muted);}
+.reward .pts{color:var(--warn); font-weight:700;}
+.badges{display:flex; gap:6px;}
+.badge-dot{width:10px; height:10px; border-radius:50%; background:var(--border); transition:background .3s;}
+.badge-dot.earned{background:var(--good); box-shadow:0 0 8px var(--good);}
+
+/* Progress rail */
+.rail{display:flex; gap:6px; margin-bottom:30px;}
+.rail-seg{flex:1; height:6px; border-radius:4px; background:var(--border); overflow:hidden; position:relative;}
+.rail-seg .fill{position:absolute; inset:0; width:0%; background:linear-gradient(90deg,var(--cyan),var(--violet)); transition:width .6s ease;}
+
+/* Cards / sections */
+.card{
+  background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:28px;
+  margin-bottom:22px; box-shadow:0 10px 40px rgba(0,0,0,0.3);
+}
+.eyebrow{font-size:.72em; text-transform:uppercase; letter-spacing:2px; color:var(--cyan); font-weight:700; margin-bottom:8px;}
+h1{font-size:2em; margin:0 0 10px;}
+h2{font-size:1.5em; margin:0 0 14px;}
+h3{font-size:1.15em; margin:22px 0 8px; color:var(--text);}
+p{line-height:1.65; color:#cfd3f5; margin:0 0 12px;}
+.muted{color:var(--muted);}
+.lead{font-size:1.05em; color:#d7dbff;}
+
+.meta-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:20px;}
+@media(max-width:700px){.meta-grid{grid-template-columns:1fr 1fr;}}
+.meta-item{background:var(--panel2); border:1px solid var(--border); border-radius:10px; padding:14px; text-align:center;}
+.meta-item .v{font-size:1.3em; font-weight:700; color:var(--cyan);}
+.meta-item .l{font-size:.72em; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-top:4px;}
+
+ul.clean{margin:0 0 14px; padding-left:20px; line-height:1.7; color:#cfd3f5;}
+.pill-row{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0;}
+.pill{background:var(--panel2); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:.82em; color:var(--muted);}
+
+/* Pipeline diagram (signature element) */
+.pipeline{display:flex; align-items:center; justify-content:space-between; margin:26px 0; overflow-x:auto; gap:4px; padding:6px 0;}
+.pipe-stage{
+  flex:1; min-width:90px; text-align:center; padding:14px 8px; border-radius:10px; border:1.5px solid var(--border);
+  background:var(--panel2); font-size:.78em; color:var(--muted); transition:all .3s; position:relative;
+}
+.pipe-stage.active{border-color:var(--cyan); color:var(--text); box-shadow:0 0 16px rgba(94,234,212,0.35); background:rgba(94,234,212,0.06);}
+.pipe-stage .ic{font-size:1.4em; display:block; margin-bottom:4px;}
+.pipe-arrow{color:var(--border); font-size:1.2em; flex-shrink:0;}
+
+/* Module blocks */
+.module{display:none;}
+.module.active{display:block;}
+.analogy-box{
+  background:rgba(167,139,250,0.08); border-left:3px solid var(--violet); border-radius:6px; padding:14px 18px; margin:16px 0;
+}
+.analogy-box .tag{font-size:.72em; text-transform:uppercase; letter-spacing:1.5px; color:var(--violet); font-weight:700; margin-bottom:6px;}
+.example-box{
+  background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:16px 18px; margin:16px 0; font-family:var(--mono); font-size:.85em; overflow-x:auto; color:#c9d1f0; line-height:1.6;
+}
+.misconception-box{
+  background:rgba(248,113,113,0.08); border-left:3px solid var(--bad); border-radius:6px; padding:14px 18px; margin:16px 0;
+}
+.misconception-box .tag{font-size:.72em; text-transform:uppercase; letter-spacing:1.5px; color:var(--bad); font-weight:700; margin-bottom:6px;}
+.takeaway-box{
+  background:rgba(52,211,153,0.08); border-left:3px solid var(--good); border-radius:6px; padding:14px 18px; margin:16px 0;
+}
+.takeaway-box .tag{font-size:.72em; text-transform:uppercase; letter-spacing:1.5px; color:var(--good); font-weight:700; margin-bottom:6px;}
+.compare-table{width:100%; border-collapse:collapse; margin:16px 0; font-size:.88em;}
+.compare-table th, .compare-table td{border:1px solid var(--border); padding:10px 12px; text-align:left;}
+.compare-table th{background:var(--panel2); color:var(--cyan); font-size:.85em;}
+.compare-table td{color:#cfd3f5;}
+
+.exercise-box{border:1.5px dashed var(--border); border-radius:10px; padding:18px; margin:18px 0;}
+.exercise-box .tag{font-size:.72em; text-transform:uppercase; letter-spacing:1.5px; color:var(--warn); font-weight:700; margin-bottom:10px;}
+.exercise-box input[type=text], .exercise-box textarea{
+  width:100%; background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:10px 12px; color:var(--text); font-family:inherit; margin-top:8px;
+}
+.exercise-feedback{margin-top:10px; font-size:.88em; padding:10px 12px; border-radius:6px; display:none;}
+.exercise-feedback.show{display:block;}
+.exercise-feedback.correct{background:rgba(52,211,153,0.12); color:var(--good);}
+.exercise-feedback.incorrect{background:rgba(248,113,113,0.12); color:var(--bad);}
+
+/* Interactive drag-order for chunking exercise etc handled per-module inline */
+
+button{
+  font-family:inherit; font-weight:700; font-size:.88em; padding:11px 24px; border-radius:8px;
+  background:linear-gradient(90deg,var(--cyan),var(--violet)); color:#0a0e1a; border:none; cursor:pointer;
+  transition:transform .15s, box-shadow .15s;
+}
+button:hover:not(:disabled){transform:translateY(-2px); box-shadow:0 6px 20px rgba(94,234,212,0.3);}
+button:disabled{opacity:.35; cursor:not-allowed; transform:none; box-shadow:none;}
+button.ghost{background:transparent; border:1.5px solid var(--border); color:var(--text);}
+button.small{padding:7px 16px; font-size:.8em;}
+.actions{display:flex; justify-content:flex-end; gap:10px; margin-top:22px;}
+.actions.center{justify-content:center;}
+
+/* Quiz */
+.quiz-q{margin-bottom:22px; padding-bottom:20px; border-bottom:1px solid var(--border);}
+.quiz-q:last-child{border-bottom:none;}
+.quiz-q .qtext{font-weight:600; margin-bottom:12px;}
+.opt{
+  display:block; width:100%; text-align:left; background:var(--panel2); border:1.5px solid var(--border); color:var(--text);
+  padding:11px 14px; border-radius:8px; margin-bottom:8px; cursor:pointer; font-family:inherit; font-size:.9em; transition:all .2s;
+}
+.opt:hover:not(:disabled){border-color:var(--cyan);}
+.opt.selected{border-color:var(--violet);}
+.opt.correct{border-color:var(--good); background:rgba(52,211,153,0.12); color:var(--good);}
+.opt.incorrect{border-color:var(--bad); background:rgba(248,113,113,0.12); color:var(--bad);}
+.opt-explain{font-size:.85em; color:var(--muted); margin-top:6px; padding-left:14px; display:none;}
+.opt-explain.show{display:block;}
+
+.quiz-summary{text-align:center; padding:26px; display:none;}
+.quiz-summary.show{display:block;}
+.quiz-score{font-size:2.4em; font-weight:700; background:linear-gradient(90deg,var(--cyan),var(--violet)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+
+/* SVG diagrams */
+.diagram-wrap{text-align:center; margin:18px 0;}
+.diagram-wrap svg{max-width:100%; height:auto;}
+
+/* Final sections */
+.resource-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+@media(max-width:700px){.resource-grid{grid-template-columns:1fr;}}
+.resource-card h4{font-size:.85em; text-transform:uppercase; letter-spacing:1.5px; color:var(--cyan); margin:0 0 10px;}
+.resource-card ul{margin:0; padding-left:18px; font-size:.88em; line-height:1.8; color:#cfd3f5;}
+
+.completion-banner{text-align:center; padding:40px 20px;}
+.completion-banner .emoji{font-size:3em;}
+
+@media print{
+  .topbar, .rail, .actions, button, .exercise-box input, .exercise-box textarea{display:none !important;}
+  .module{display:block !important;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">Interactive Learning Studio · <span>RAG Basics</span></div>
+    <div class="reward">
+      <span class="pts" id="ptsDisplay">0 XP</span>
+      <div class="badges" id="badgeRow"></div>
+    </div>
+  </div>
+  <div class="rail" id="rail"></div>
+
+  <div id="content"></div>
+</div>
+
+<script>
+/* ============ STATE ============ */
+const state = {
+  screen: 'intro', // intro, m1..m4, final
+  unlocked: {m1:true, m2:false, m3:false, m4:false, final:false},
+  xp: 0,
+  badges: [false,false,false,false,false], // intro + 4 modules
+  quizState: {} // per module: {answers:[], submitted:false}
+};
+
+const SCREENS = ['intro','m1','m2','m3','m4','final'];
+
+function addXP(n){ state.xp += n; document.getElementById('ptsDisplay').textContent = state.xp + ' XP'; }
+function earnBadge(i){ state.badges[i]=true; renderBadges(); }
+function renderBadges(){
+  document.getElementById('badgeRow').innerHTML = state.badges.map(b=>`<div class="badge-dot ${b?'earned':''}"></div>`).join('');
+}
+function renderRail(){
+  const rail = document.getElementById('rail');
+  rail.innerHTML = SCREENS.map(s=>`<div class="rail-seg" data-s="${s}"><div class="fill"></div></div>`).join('');
+  const idx = SCREENS.indexOf(state.screen);
+  rail.querySelectorAll('.rail-seg').forEach((seg,i)=>{
+    seg.querySelector('.fill').style.width = i<=idx ? '100%' : '0%';
+  });
+}
+
+function goTo(screen){
+  state.screen = screen;
+  renderRail();
+  renderScreen();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function pipelineHTML(activeIdx){
+  const stages = [
+    {ic:'❓', l:'Query'}, {ic:'🔢', l:'Embed'}, {ic:'📚', l:'Retrieve'},
+    {ic:'🧩', l:'Augment'}, {ic:'✨', l:'Generate'}, {ic:'💬', l:'Answer'}
+  ];
+  return `<div class="pipeline">${stages.map((s,i)=>
+    `${i>0?'<span class="pipe-arrow">→</span>':''}<div class="pipe-stage ${i===activeIdx?'active':''}"><span class="ic">${s.ic}</span>${s.l}</div>`
+  ).join('')}</div>`;
+}
+
+function renderScreen(){
+  const c = document.getElementById('content');
+  if(state.screen==='intro') return renderIntro(c);
+  if(state.screen==='m1') return renderModule1(c);
+  if(state.screen==='m2') return renderModule2(c);
+  if(state.screen==='m3') return renderModule3(c);
+  if(state.screen==='m4') return renderModule4(c);
+  if(state.screen==='final') return renderFinal(c);
+}
+
+function renderIntro(c){
+  c.innerHTML = `
+    <div class="card">
+      <div class="eyebrow">Welcome</div>
+      <h1>Retrieval-Augmented Generation, from first principles to mastery</h1>
+      <p class="lead">RAG is the technique that lets a language model answer using knowledge it was never trained on — your documents, your database, today's news — by fetching relevant information and handing it to the model at the moment it answers.</p>
+      ${pipelineHTML(-1)}
+      <h3>What you'll be able to do</h3>
+      <ul class="clean">
+        <li>Explain why RAG exists and what specific problem it solves better than fine-tuning alone</li>
+        <li>Describe how text becomes searchable via embeddings and vector similarity</li>
+        <li>Design a chunking and retrieval strategy for a real document set</li>
+        <li>Build a mental model of the full pipeline: ingest → chunk → embed → store → retrieve → augment → generate</li>
+        <li>Evaluate a RAG system and diagnose common failure modes (hybrid search, re-ranking, faithfulness)</li>
+      </ul>
+      <div class="meta-grid">
+        <div class="meta-item"><div class="v">~70 min</div><div class="l">Est. time</div></div>
+        <div class="meta-item"><div class="v">4</div><div class="l">Modules</div></div>
+        <div class="meta-item"><div class="v">Beginner+</div><div class="l">Level</div></div>
+        <div class="meta-item"><div class="v">16</div><div class="l">Quiz questions</div></div>
+      </div>
+      <h3>Prerequisites</h3>
+      <div class="pill-row">
+        <div class="pill">Basic familiarity with LLMs / chatbots</div>
+        <div class="pill">Comfort reading short code snippets</div>
+        <div class="pill">No ML math background required</div>
+      </div>
+      <h3>Reward system</h3>
+      <p>You'll earn <span style="color:var(--warn); font-weight:700;">XP</span> for completing each module's quiz and a badge for each module you master. Finish all four to unlock the Final Challenge and your completion certificate.</p>
+      <div class="actions center">
+        <button onclick="goTo('m1')">Begin Module 1 →</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderModule1(c){
+  c.innerHTML = `
+    <div class="card">
+      <div class="eyebrow">Module 1 of 4 · Foundations</div>
+      <h2>Why RAG exists</h2>
+      ${pipelineHTML(0)}
+      <p>A language model's knowledge is frozen at training time and limited to what it saw during training. Ask it about your company's internal policy doc, or an event from last week, and it either says "I don't know" or — worse — confidently makes something up. This is the core problem RAG solves: giving the model access to specific, current, or private information <em>at the moment it answers</em>, without retraining it.</p>
+
+      <div class="analogy-box">
+        <div class="tag">Analogy</div>
+        <p style="margin:0;">A model without RAG is a brilliant expert taking a <strong>closed-book exam</strong> — relying entirely on memory. RAG turns it into the same expert taking an <strong>open-book exam</strong>: they can flip to the exact page that answers the question, then reason over it. The expertise to reason well is still theirs — RAG just hands them the right book, open to the right page.</p>
+      </div>
+
+      <h3>The two halves of RAG</h3>
+      <p><strong>Retrieval</strong>: given a question, search a knowledge source (documents, a database, the web) and pull back the most relevant pieces of text. <strong>Augmented Generation</strong>: paste those pieces into the prompt alongside the question, so the model generates its answer grounded in that specific text rather than from memory alone.</p>
+
+      <table class="compare-table">
+        <tr><th></th><th>Without RAG</th><th>With RAG</th></tr>
+        <tr><td>Knowledge source</td><td>Frozen training data only</td><td>Training data + live external documents</td></tr>
+        <tr><td>Updating knowledge</td><td>Requires retraining/fine-tuning</td><td>Just update the document store</td></tr>
+        <tr><td>Citing sources</td><td>Not possible</td><td>Can point to exact retrieved passages</td></tr>
+        <tr><td>Private/internal data</td><td>Never seen it</td><td>Retrieved on demand, never trained on it</td></tr>
+      </table>
+
+      <h3>A minimal example</h3>
+      <div class="example-box">User asks: "What's our refund policy for orders over $500?"
+
+Without RAG → model guesses from generic training knowledge about "typical" refund policies.
+
+With RAG →
+1. Search internal policy documents for "refund policy $500"
+2. Retrieve: "Orders over $500 require manager approval and a 14-day window..."
+3. Prompt becomes: "Using this policy excerpt: [retrieved text] — answer: What's our refund policy for orders over $500?"
+4. Model answers using the actual retrieved policy, not a guess.</div>
+
+      <div class="misconception-box">
+        <div class="tag">Common misconception</div>
+        <p style="margin:0;">"RAG trains the model on your documents." It doesn't — no weights change. Every retrieval is temporary: the text is inserted into that one prompt and forgotten afterward. This is exactly why RAG is so easy to update — change the documents, not the model.</p>
+      </div>
+
+      <div class="exercise-box">
+        <div class="tag">Quick check — apply it</div>
+        <p style="margin:0 0 8px;">A support chatbot keeps giving outdated shipping cutoff times because the policy changed last month. Which fix is more RAG-appropriate?</p>
+        <button class="opt" data-ex="1a">Retrain the entire model on the new policy</button>
+        <button class="opt" data-ex="1b">Update the document in the knowledge store the chatbot retrieves from</button>
+        <div class="exercise-feedback" id="ex1-feedback"></div>
+      </div>
+
+      <div class="takeaway-box">
+        <div class="tag">Key takeaways</div>
+        <ul class="clean" style="margin:0;">
+          <li>RAG solves the "frozen knowledge" and hallucination problem by fetching relevant text at answer-time</li>
+          <li>It has two halves: retrieval (search) and augmented generation (grounded answering)</li>
+          <li>Nothing about the model's weights changes — updating knowledge means updating documents, not retraining</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Module 1 Quiz</h2>
+      <div id="quiz-m1"></div>
+    </div>
+  `;
+
+  document.querySelectorAll('[data-ex="1a"],[data-ex="1b"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const fb = document.getElementById('ex1-feedback');
+      const correct = btn.dataset.ex === '1b';
+      fb.textContent = correct
+        ? "Right — RAG's whole advantage is that you never retrain for a knowledge change. Just update the source document."
+        : "Not quite — retraining is slow, expensive, and overkill for a single fact change. RAG is designed so you update the document store instead.";
+      fb.className = 'exercise-feedback show ' + (correct?'correct':'incorrect');
+    });
+  });
+
+  renderQuiz('m1', QUIZZES.m1, 'quiz-m1', 'm2', 0);
+}
+
+/* ============ QUIZ ENGINE ============ */
+const QUIZZES = {
+  m4: [
+    { q:"Why use hybrid search instead of pure vector similarity alone?", opts:[
+        "It's cheaper to compute than vector search",
+        "It catches exact-match terms (codes, citations, acronyms) that embeddings can miss",
+        "It removes the need for chunking",
+        "It replaces the need for a language model entirely"
+      ], correct:1, explain:"Embeddings capture meaning, not exact strings — hybrid search adds keyword matching to catch precise terms vector search often misses." },
+    { q:"What does a re-ranker do?", opts:[
+        "Deletes irrelevant documents permanently from storage",
+        "Re-scores an initial set of retrieved candidates more precisely before final selection",
+        "Trains the embedding model from scratch",
+        "Converts text into vectors for the first time"
+      ], correct:1, explain:"Re-ranking is a second, more careful pass over the initially retrieved candidates to improve precision before generation." },
+    { q:"Which metric checks whether a generated answer only states things supported by retrieved text?", opts:[
+        "Retrieval speed", "Faithfulness / groundedness", "Chunk size", "Embedding dimensionality"
+      ], correct:1, explain:"Faithfulness (also called groundedness) specifically measures whether the answer sticks to what the retrieved context actually supports." },
+    { q:"What's the most accurate way to think about RAG vs. fine-tuning?", opts:[
+        "They're interchangeable and you should only ever use one",
+        "Fine-tuning always replaces the need for RAG",
+        "They solve different problems and are often combined in real systems",
+        "RAG replaces the need for a language model"
+      ], correct:2, explain:"RAG supplies fresh/specific knowledge at query time; fine-tuning shapes behavior and style. Production systems frequently use both together." }
+  ],
+  m3: [
+    { q:"Put in order: which stage comes right before 'Retrieve' in the pipeline?", opts:[
+        "Generate", "Store", "Augment", "Ingest"
+      ], correct:1, explain:"Chunks and their vectors must already be stored before a query can search against them — Store comes right before Retrieve." },
+    { q:"What does 'augment' mean in the RAG pipeline?", opts:[
+        "Retraining the model on new data",
+        "Inserting retrieved chunks into the prompt alongside the question",
+        "Increasing the size of the vector database",
+        "Compressing the final answer"
+      ], correct:1, explain:"Augmentation is purely a prompt-construction step: retrieved text gets placed into the prompt so generation can use it." },
+    { q:"Why include an instruction like 'answer only using the provided context'?", opts:[
+        "It makes the model respond faster",
+        "It reduces the chance the model blends retrieved facts with invented ones",
+        "It's required by the vector database",
+        "It changes how chunks are embedded"
+      ], correct:1, explain:"Explicit grounding instructions push the model to stay honest about what it actually retrieved, rather than quietly guessing." },
+    { q:"Is retrieving relevant chunks alone enough to guarantee a correct final answer?", opts:[
+        "Yes, retrieval guarantees correctness",
+        "No — the generation step can still misread or ignore the retrieved text without good prompt design",
+        "Yes, as long as embeddings are high-dimensional",
+        "No, because retrieval never actually works"
+      ], correct:1, explain:"Retrieval only guarantees the model saw relevant text — generation quality and grounding instructions still determine whether it's used correctly." }
+  ],
+  m2: [
+    { q:"What is an embedding, in plain terms?", opts:[
+        "A compressed version of the original text file",
+        "A list of numbers representing meaning, positioned so similar meanings are near each other",
+        "A summary written by the language model",
+        "A keyword index of exact word matches"
+      ], correct:1, explain:"Embeddings are numeric vectors — the geometry of that vector space is what makes 'similar meaning' something you can measure with math." },
+    { q:"Which similarity measure is most commonly used to compare embeddings?", opts:[
+        "Alphabetical sorting",
+        "Cosine similarity",
+        "File size comparison",
+        "Word count difference"
+      ], correct:1, explain:"Cosine similarity measures the angle between two vectors, which corresponds well to closeness in meaning regardless of vector magnitude." },
+    { q:"Why not embed an entire 40-page document as a single vector?", opts:[
+        "It's technically impossible to do",
+        "It would blur many different topics into one vague average, hurting retrieval precision",
+        "It uses less storage than chunking",
+        "Documents must always be under 500 words"
+      ], correct:1, explain:"A single vector for a huge document averages out all its distinct topics, making it hard to retrieve the one relevant idea precisely." },
+    { q:"What's the main risk of using overlapping chunks?", opts:[
+        "Ideas get cut off mid-sentence more often",
+        "Slightly more storage and some duplicated content across chunks",
+        "It makes cosine similarity impossible to compute",
+        "It removes the ability to cite sources"
+      ], correct:1, explain:"Overlap trades a small amount of redundant storage for better context preservation across chunk boundaries — a reasonable tradeoff in most systems." }
+  ],
+  m1: [
+    { q:"What problem does RAG primarily solve?", opts:[
+        "Making the model generate text faster",
+        "Giving the model access to information beyond its frozen training data",
+        "Reducing the size of the model",
+        "Making the model's tone more polite"
+      ], correct:1, explain:"RAG's core purpose is bridging the gap between what a model learned during training and what it needs to know right now — private, recent, or specific information." },
+    { q:"In RAG, what actually changes when you update the knowledge source?", opts:[
+        "The model's weights are retrained",
+        "Nothing changes — the model ignores updates",
+        "The documents in the retrieval store are updated; no retraining happens",
+        "You must fine-tune a new model version"
+      ], correct:2, explain:"This is RAG's biggest practical advantage: swap or edit documents in the store, and the next query retrieves the updated text — no retraining required." },
+    { q:"Which analogy best fits how RAG changes a model's exam-taking?", opts:[
+        "From open-book to closed-book",
+        "From closed-book to open-book",
+        "From written exam to oral exam",
+        "From individual exam to group exam"
+      ], correct:1, explain:"RAG hands the model the equivalent of the correct page in an open book, rather than forcing it to rely purely on memorized training knowledge." },
+    { q:"Which of these is NOT one of the two core halves of RAG?", opts:[
+        "Retrieval — searching for relevant text",
+        "Augmented generation — answering grounded in retrieved text",
+        "Fine-tuning — updating the model's weights on the retrieved text",
+        "Both A and B together form the RAG process"
+      ], correct:2, explain:"Fine-tuning is a separate technique. RAG deliberately avoids retraining — it only retrieves and inserts text into the prompt." }
+  ]
+};
+
+function renderQuiz(modId, questions, containerId, nextScreen, badgeIdx){
+  const container = document.getElementById(containerId);
+  if(!state.quizState[modId]) state.quizState[modId] = { answers:new Array(questions.length).fill(null), submitted:false };
+  const qs = state.quizState[modId];
+
+  container.innerHTML = questions.map((q,qi)=>`
+    <div class="quiz-q">
+      <div class="qtext">${qi+1}. ${q.q}</div>
+      ${q.opts.map((opt,oi)=>`
+        <button class="opt" data-qi="${qi}" data-oi="${oi}">${opt}</button>
+      `).join('')}
+      <div class="opt-explain" id="${modId}-explain-${qi}">${q.explain}</div>
+    </div>
+  `).join('') + `
+    <div class="actions">
+      <button id="${modId}-submitQuiz">Submit Quiz</button>
+    </div>
+    <div class="quiz-summary" id="${modId}-summary">
+      <div class="quiz-score" id="${modId}-scoreText"></div>
+      <p class="muted" id="${modId}-scoreMsg"></p>
+      <div class="actions center">
+        <button id="${modId}-continueBtn">Continue →</button>
+      </div>
+    </div>
+  `;
+
+  container.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(qs.submitted) return;
+      const qi = +btn.dataset.qi;
+      qs.answers[qi] = +btn.dataset.oi;
+      container.querySelectorAll(`.opt[data-qi="${qi}"]`).forEach(b=> b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+  });
+
+  document.getElementById(`${modId}-submitQuiz`).addEventListener('click', ()=>{
+    if(qs.answers.some(a=>a===null)){
+      alert('Please answer every question before submitting.');
+      return;
+    }
+    qs.submitted = true;
+    let correctCount = 0;
+    questions.forEach((q,qi)=>{
+      const chosen = qs.answers[qi];
+      container.querySelectorAll(`.opt[data-qi="${qi}"]`).forEach(b=>{
+        const oi = +b.dataset.oi;
+        b.disabled = true;
+        if(oi === q.correct) b.classList.add('correct');
+        else if(oi === chosen) b.classList.add('incorrect');
+      });
+      document.getElementById(`${modId}-explain-${qi}`).classList.add('show');
+      if(chosen === q.correct) correctCount++;
+    });
+    document.getElementById(`${modId}-submitQuiz`).style.display = 'none';
+    const pct = Math.round(correctCount/questions.length*100);
+    document.getElementById(`${modId}-scoreText`).textContent = `${correctCount} / ${questions.length}`;
+    let msg = pct>=75 ? "Strong grasp of this module — you're ready to move on." : pct>=50 ? "Decent start — consider skimming the misconceptions above before continuing." : "This module's ideas haven't quite landed yet — a re-read before continuing will help a lot.";
+    document.getElementById(`${modId}-scoreMsg`).textContent = msg;
+    document.getElementById(`${modId}-summary`).classList.add('show');
+    addXP(correctCount*25);
+    earnBadge(badgeIdx);
+    if(state.unlocked) state.unlocked[nextScreen] = true;
+
+    document.getElementById(`${modId}-continueBtn`).addEventListener('click', ()=> goTo(nextScreen));
+  });
+}
+
+function renderModule2(c){
+  c.innerHTML = `
+    <div class="card">
+      <div class="eyebrow">Module 2 of 4 · Building Blocks</div>
+      <h2>Embeddings, similarity, and chunking</h2>
+      ${pipelineHTML(1)}
+      <p>Retrieval needs a way to measure "how related is this text to the question?" — computers can't do that with raw words, so we convert text into <strong>embeddings</strong>: lists of numbers (vectors) that place similar meanings near each other in space.</p>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 420 220" width="420">
+          <rect x="0" y="0" width="420" height="220" rx="10" fill="#0f1428" stroke="#2a3358"/>
+          <circle cx="90" cy="70" r="6" fill="#5eead4"/><text x="100" y="74" fill="#8b93c4" font-size="11">"refund policy"</text>
+          <circle cx="110" cy="100" r="6" fill="#5eead4"/><text x="120" y="104" fill="#8b93c4" font-size="11">"return window"</text>
+          <circle cx="70" cy="120" r="6" fill="#5eead4"/><text x="80" y="124" fill="#8b93c4" font-size="11">"money back"</text>
+          <circle cx="300" cy="50" r="6" fill="#a78bfa"/><text x="310" y="54" fill="#8b93c4" font-size="11">"weather today"</text>
+          <circle cx="330" cy="80" r="6" fill="#a78bfa"/><text x="200" y="20" fill="#8b93c4" font-size="11" text-anchor="middle" opacity="0"> </text>
+          <circle cx="320" cy="160" r="6" fill="#fbbf24"/><text x="240" y="164" fill="#8b93c4" font-size="11">"server crashed"</text>
+          <ellipse cx="93" cy="97" rx="55" ry="45" fill="none" stroke="#5eead4" stroke-dasharray="4 3" opacity="0.5"/>
+          <text x="210" y="200" fill="#565f8f" font-size="10" text-anchor="middle">Embedding space — nearby points = related meaning</text>
+        </svg>
+      </div>
+
+      <div class="analogy-box">
+        <div class="tag">Analogy</div>
+        <p style="margin:0;">Think of embeddings as coordinates on a map of meaning. "Refund," "return window," and "money back" all end up in the same neighborhood — even though they share no exact words — because they mean similar things. "Weather today" lives in a completely different part of the map.</p>
+      </div>
+
+      <h3>How similarity is measured</h3>
+      <p>Once text is converted to vectors, retrieval compares the question's vector to every stored chunk's vector using a similarity measure — most commonly <strong>cosine similarity</strong>, which checks how closely two vectors point in the same direction, ignoring their length. The closest matches become your retrieved chunks.</p>
+
+      <h3>Why chunking matters</h3>
+      <p>You don't embed whole documents — a 40-page policy manual embedded as one vector would blur every topic together into a vague average. Instead, documents are split into <strong>chunks</strong> (e.g. 200–500 words, often with slight overlap) so each chunk represents one coherent idea and can be retrieved precisely.</p>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 460 130" width="460">
+          <rect x="10" y="20" width="440" height="30" rx="4" fill="#1a2140" stroke="#2a3358"/>
+          <text x="230" y="39" fill="#8b93c4" font-size="11" text-anchor="middle">Full document (40 pages)</text>
+          <text x="230" y="65" fill="#565f8f" font-size="16" text-anchor="middle">↓ split into overlapping chunks ↓</text>
+          <rect x="10" y="85" width="90" height="30" rx="4" fill="rgba(94,234,212,0.15)" stroke="#5eead4"/><text x="55" y="104" fill="#5eead4" font-size="10" text-anchor="middle">Chunk 1</text>
+          <rect x="90" y="85" width="90" height="30" rx="4" fill="rgba(167,139,250,0.15)" stroke="#a78bfa"/><text x="135" y="104" fill="#a78bfa" font-size="10" text-anchor="middle">Chunk 2</text>
+          <rect x="170" y="85" width="90" height="30" rx="4" fill="rgba(94,234,212,0.15)" stroke="#5eead4"/><text x="215" y="104" fill="#5eead4" font-size="10" text-anchor="middle">Chunk 3</text>
+          <rect x="250" y="85" width="90" height="30" rx="4" fill="rgba(167,139,250,0.15)" stroke="#a78bfa"/><text x="295" y="104" fill="#a78bfa" font-size="10" text-anchor="middle">Chunk 4</text>
+          <rect x="330" y="85" width="120" height="30" rx="4" fill="rgba(94,234,212,0.15)" stroke="#5eead4"/><text x="390" y="104" fill="#5eead4" font-size="10" text-anchor="middle">Chunk 5...</text>
+        </svg>
+      </div>
+
+      <table class="compare-table">
+        <tr><th>Chunk size</th><th>Pros</th><th>Cons</th></tr>
+        <tr><td>Small (~100 words)</td><td>Precise, focused retrieval</td><td>Loses surrounding context</td></tr>
+        <tr><td>Large (~1000+ words)</td><td>Keeps more context together</td><td>Dilutes relevance, wastes prompt space</td></tr>
+        <tr><td>Overlapping chunks</td><td>Avoids cutting ideas mid-sentence</td><td>More storage, some duplication</td></tr>
+      </table>
+
+      <div class="misconception-box">
+        <div class="tag">Common misconception</div>
+        <p style="margin:0;">"More retrieved chunks always means a better answer." In practice, stuffing in too many loosely-related chunks buries the genuinely relevant one and can confuse the model — precision usually beats volume.</p>
+      </div>
+
+      <div class="exercise-box">
+        <div class="tag">Quick check — apply it</div>
+        <p style="margin:0 0 8px;">A legal contract has clauses that reference definitions several paragraphs earlier. What chunking choice helps most?</p>
+        <button class="opt" data-ex="2a">Tiny 50-word chunks with no overlap</button>
+        <button class="opt" data-ex="2b">Moderate-size chunks with overlap so definitions carry into nearby clauses</button>
+        <div class="exercise-feedback" id="ex2-feedback"></div>
+      </div>
+
+      <div class="takeaway-box">
+        <div class="tag">Key takeaways</div>
+        <ul class="clean" style="margin:0;">
+          <li>Embeddings turn text into vectors so meaning-based similarity can be measured mathematically</li>
+          <li>Cosine similarity is the typical way to compare a query vector to stored chunk vectors</li>
+          <li>Chunking size and overlap are a real design decision — not an implementation detail to ignore</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Module 2 Quiz</h2>
+      <div id="quiz-m2"></div>
+    </div>
+  `;
+
+  document.querySelectorAll('[data-ex="2a"],[data-ex="2b"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const fb = document.getElementById('ex2-feedback');
+      const correct = btn.dataset.ex === '2b';
+      fb.textContent = correct
+        ? "Right — overlap helps preserve cross-references like shared definitions, which tiny non-overlapping chunks would cut apart."
+        : "Not ideal — very small non-overlapping chunks risk severing a clause from the definition it depends on.";
+      fb.className = 'exercise-feedback show ' + (correct?'correct':'incorrect');
+    });
+  });
+
+  renderQuiz('m2', QUIZZES.m2, 'quiz-m2', 'm3', 1);
+}
+
+function renderModule3(c){
+  c.innerHTML = `
+    <div class="card">
+      <div class="eyebrow">Module 3 of 4 · Practical Application</div>
+      <h2>The full RAG pipeline, end to end</h2>
+      ${pipelineHTML(3)}
+      <p>Here's every stage a real RAG system runs through, from raw documents to a grounded answer:</p>
+      <ol class="clean">
+        <li><strong>Ingest</strong> — collect source documents (PDFs, wikis, tickets, web pages)</li>
+        <li><strong>Chunk</strong> — split each document into coherent, appropriately-sized pieces</li>
+        <li><strong>Embed</strong> — convert each chunk into a vector using an embedding model</li>
+        <li><strong>Store</strong> — save chunks + vectors in a vector database for fast similarity search</li>
+        <li><strong>Retrieve</strong> — embed the incoming question, find the closest-matching chunks</li>
+        <li><strong>Augment</strong> — insert retrieved chunks into the prompt alongside the question</li>
+        <li><strong>Generate</strong> — the language model answers, grounded in that inserted text</li>
+      </ol>
+
+      <h3>What an augmented prompt actually looks like</h3>
+      <div class="example-box">SYSTEM: Answer only using the provided context. If the context doesn't contain
+the answer, say so — do not guess.
+
+CONTEXT:
+[Chunk 3] "Orders over $500 require manager approval and a 14-day return window from delivery date."
+[Chunk 7] "Refunds are issued to the original payment method within 5–7 business days."
+
+QUESTION: What's the refund policy for a $600 order?
+
+→ Model answer: "Orders over $500, including a $600 order, require manager approval
+and must be returned within 14 days of delivery. Once approved, the refund is issued
+to the original payment method within 5–7 business days."</div>
+
+      <div class="analogy-box">
+        <div class="tag">Analogy</div>
+        <p style="margin:0;">Augmentation is like a lawyer handing a witness the exact exhibit before asking a question — "Look at Exhibit B, then tell me what it says about the return window." The witness (the model) still does the reasoning, but now it's reasoning over the right document instead of guessing from memory.</p>
+      </div>
+
+      <h3>Grounding instructions matter</h3>
+      <p>Notice the system instruction above: "answer only using the provided context... say so if it doesn't contain the answer." Without an instruction like this, models will often blend retrieved text with their own memorized guesses — quietly reintroducing the hallucination problem RAG was meant to fix.</p>
+
+      <table class="compare-table">
+        <tr><th>Prompt style</th><th>Effect</th></tr>
+        <tr><td>No grounding instruction</td><td>Model may mix retrieved facts with invented ones</td></tr>
+        <tr><td>"Answer only from context, else say unsure"</td><td>Model stays honest about what it actually knows</td></tr>
+        <tr><td>No question restated near the context</td><td>Model may lose track of what's actually being asked</td></tr>
+      </table>
+
+      <div class="misconception-box">
+        <div class="tag">Common misconception</div>
+        <p style="margin:0;">"Retrieval alone guarantees a correct answer." Retrieval only guarantees the model <em>saw</em> relevant text — the generation step can still misread, misquote, or ignore it. Good grounding instructions and prompt structure matter just as much as good retrieval.</p>
+      </div>
+
+      <div class="exercise-box">
+        <div class="tag">Quick check — apply it</div>
+        <p style="margin:0 0 8px;">Retrieval returns three chunks, but none of them actually answer the user's question about international shipping. What should a well-designed RAG prompt cause the model to do?</p>
+        <button class="opt" data-ex="3a">Answer anyway using general knowledge, without mentioning the mismatch</button>
+        <button class="opt" data-ex="3b">State that the retrieved context doesn't cover international shipping, rather than guessing</button>
+        <div class="exercise-feedback" id="ex3-feedback"></div>
+      </div>
+
+      <div class="takeaway-box">
+        <div class="tag">Key takeaways</div>
+        <ul class="clean" style="margin:0;">
+          <li>The pipeline has seven concrete stages — ingest, chunk, embed, store, retrieve, augment, generate</li>
+          <li>An augmented prompt places retrieved chunks directly alongside the question, clearly labeled</li>
+          <li>Explicit grounding instructions ("answer only from context") are what actually prevent hallucination — retrieval alone isn't enough</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Module 3 Quiz</h2>
+      <div id="quiz-m3"></div>
+    </div>
+  `;
+
+  document.querySelectorAll('[data-ex="3a"],[data-ex="3b"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const fb = document.getElementById('ex3-feedback');
+      const correct = btn.dataset.ex === '3b';
+      fb.textContent = correct
+        ? "Right — a well-grounded RAG system should admit when retrieval didn't surface the answer, rather than silently falling back to a guess."
+        : "Risky — this is exactly the silent hallucination pattern RAG grounding instructions are meant to prevent.";
+      fb.className = 'exercise-feedback show ' + (correct?'correct':'incorrect');
+    });
+  });
+
+  renderQuiz('m3', QUIZZES.m3, 'quiz-m3', 'm4', 2);
+}
+
+function renderModule4(c){
+  c.innerHTML = `
+    <div class="card">
+      <div class="eyebrow">Module 4 of 4 · Mastery</div>
+      <h2>Making RAG actually reliable</h2>
+      ${pipelineHTML(2)}
+      <p>Basic vector similarity retrieval gets you most of the way, but production RAG systems layer on techniques to fix its weak spots: missed exact matches, irrelevant top results, and no way to measure if it's actually working.</p>
+
+      <h3>Hybrid search</h3>
+      <p>Pure vector similarity can miss exact terms — a product code, a legal citation, an acronym — because embeddings capture <em>meaning</em>, not exact strings. <strong>Hybrid search</strong> combines vector similarity with traditional keyword search (like BM25), then merges both result sets so you catch semantic matches and exact matches.</p>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 420 150" width="420">
+          <rect x="10" y="15" width="170" height="40" rx="6" fill="rgba(94,234,212,0.12)" stroke="#5eead4"/>
+          <text x="95" y="39" fill="#5eead4" font-size="11" text-anchor="middle">Vector search (meaning)</text>
+          <rect x="240" y="15" width="170" height="40" rx="6" fill="rgba(167,139,250,0.12)" stroke="#a78bfa"/>
+          <text x="325" y="39" fill="#a78bfa" font-size="11" text-anchor="middle">Keyword search (exact terms)</text>
+          <text x="210" y="80" fill="#565f8f" font-size="16" text-anchor="middle">↘  merge & re-rank  ↙</text>
+          <rect x="120" y="100" width="180" height="36" rx="6" fill="rgba(251,191,36,0.12)" stroke="#fbbf24"/>
+          <text x="210" y="122" fill="#fbbf24" font-size="11" text-anchor="middle">Final ranked result set</text>
+        </svg>
+      </div>
+
+      <h3>Re-ranking</h3>
+      <p>Initial retrieval is optimized for speed across huge collections, so it's often approximate. A <strong>re-ranker</strong> takes the top N candidates (say, top 20) and re-scores them more carefully — usually with a slower, more accurate model — before the final top few are handed to generation.</p>
+
+      <h3>Evaluating a RAG system</h3>
+      <table class="compare-table">
+        <tr><th>Metric</th><th>What it checks</th></tr>
+        <tr><td>Retrieval precision/recall</td><td>Did retrieval surface the actually-relevant chunks (and not too much noise)?</td></tr>
+        <tr><td>Faithfulness / groundedness</td><td>Does the generated answer only state things supported by the retrieved text?</td></tr>
+        <tr><td>Answer relevance</td><td>Does the final answer actually address the question asked?</td></tr>
+      </table>
+
+      <div class="analogy-box">
+        <div class="tag">Analogy</div>
+        <p style="margin:0;">Re-ranking is like a librarian's first quick sweep pulling 20 possibly-relevant books off the shelf (fast, approximate), followed by an expert actually skimming those 20 to hand you the best 3 (slower, precise). Skipping the expert pass means you sometimes hand over the wrong book.</p>
+      </div>
+
+      <h3>RAG vs. fine-tuning — when each wins</h3>
+      <table class="compare-table">
+        <tr><th></th><th>RAG</th><th>Fine-tuning</th></tr>
+        <tr><td>Best for</td><td>Fresh, private, or frequently changing knowledge</td><td>Changing the model's style, format, or a stable skill</td></tr>
+        <tr><td>Update speed</td><td>Instant — edit the document store</td><td>Slow — requires retraining</td></tr>
+        <tr><td>Can cite sources</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Cost per update</td><td>Low</td><td>Higher (training run)</td></tr>
+      </table>
+
+      <div class="misconception-box">
+        <div class="tag">Common misconception</div>
+        <p style="margin:0;">"RAG and fine-tuning are competitors — pick one." In practice, many production systems use both: fine-tuning to shape how the model behaves and formats answers, RAG to feed it the specific facts it needs at query time.</p>
+      </div>
+
+      <div class="exercise-box">
+        <div class="tag">Quick check — apply it</div>
+        <p style="margin:0 0 8px;">Users search for an exact SKU like "TX-4471-B" and vector search keeps missing it. What's the most direct fix?</p>
+        <button class="opt" data-ex="4a">Switch entirely to a bigger embedding model</button>
+        <button class="opt" data-ex="4b">Add hybrid keyword search alongside vector search so exact strings are caught</button>
+        <div class="exercise-feedback" id="ex4-feedback"></div>
+      </div>
+
+      <div class="takeaway-box">
+        <div class="tag">Key takeaways</div>
+        <ul class="clean" style="margin:0;">
+          <li>Hybrid search catches exact-match terms that pure vector similarity often misses</li>
+          <li>Re-ranking trades a little speed for meaningfully better precision on the final chunks used</li>
+          <li>Faithfulness and answer relevance are the two metrics that matter most for evaluating real RAG quality</li>
+          <li>RAG and fine-tuning solve different problems and are frequently combined, not competitors</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Module 4 Quiz</h2>
+      <div id="quiz-m4"></div>
+    </div>
+  `;
+
+  document.querySelectorAll('[data-ex="4a"],[data-ex="4b"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const fb = document.getElementById('ex4-feedback');
+      const correct = btn.dataset.ex === '4b';
+      fb.textContent = correct
+        ? "Right — hybrid search is the standard fix for missed exact-string matches like SKUs, codes, or citations."
+        : "A bigger embedding model still captures meaning, not exact strings — it won't reliably fix missed exact-match terms.";
+      fb.className = 'exercise-feedback show ' + (correct?'correct':'incorrect');
+    });
+  });
+
+  renderQuiz('m4', QUIZZES.m4, 'quiz-m4', 'final', 3);
+}
+
+function renderFinal(c){
+  c.innerHTML = `
+    <div class="card completion-banner">
+      <div class="emoji">🎓</div>
+      <h1>You've completed RAG Basics</h1>
+      <p class="lead">${state.xp} XP earned across four modules. Here's your final challenge, a cheat sheet, and where to go deeper.</p>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Final Practical Challenge</div>
+      <h2>Design a RAG system on paper</h2>
+      <p>You're building a support assistant for a software company with 300 help-center articles, some of which mention exact error codes (e.g. "ERR-4092").</p>
+      <div class="exercise-box">
+        <div class="tag">Work through it</div>
+        <p style="margin:0 0 10px;">Sketch your answers to these three design questions (type freely — there's no single graded answer, this is for your own reasoning):</p>
+        <textarea rows="2" placeholder="1. What chunk size/overlap would you choose for help-center articles, and why?"></textarea>
+        <textarea rows="2" placeholder="2. Given the exact error codes, would you use pure vector search or hybrid search? Why?" style="margin-top:10px;"></textarea>
+        <textarea rows="2" placeholder="3. What grounding instruction would you put in the system prompt to prevent hallucinated troubleshooting steps?" style="margin-top:10px;"></textarea>
+        <div class="actions">
+          <button class="small" onclick="document.getElementById('challenge-answer').classList.add('show')">Reveal a model answer</button>
+        </div>
+        <div class="exercise-feedback correct" id="challenge-answer" style="margin-top:14px;">
+          <strong>One reasonable design:</strong> Medium chunks (~300 words) with slight overlap per article section. Use hybrid search since exact error codes need keyword matching that embeddings alone would miss. System prompt: "Only provide troubleshooting steps found in the retrieved articles; if the error code isn't covered, say so and suggest contacting support directly — never invent a fix."
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Cheat Sheet</div>
+      <h2>RAG at a glance</h2>
+      ${pipelineHTML(-1)}
+      <ul class="clean">
+        <li><strong>RAG</strong> = Retrieval (search) + Augmented Generation (grounded answering), no retraining involved</li>
+        <li><strong>Embeddings</strong> = vectors placing similar meanings near each other; compared via cosine similarity</li>
+        <li><strong>Chunking</strong> = split documents into coherent pieces; overlap preserves cross-references</li>
+        <li><strong>Pipeline</strong> = ingest → chunk → embed → store → retrieve → augment → generate</li>
+        <li><strong>Grounding instructions</strong> = tell the model to answer only from context, and say so if it can't</li>
+        <li><strong>Hybrid search</strong> = vector + keyword search combined, catches exact terms embeddings miss</li>
+        <li><strong>Re-ranking</strong> = a slower, more precise second pass over initial retrieval candidates</li>
+        <li><strong>Faithfulness</strong> = does the answer only state what's actually supported by retrieved text?</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Continue Learning</div>
+      <h2>Go deeper</h2>
+      <div class="resource-grid">
+        <div class="resource-card">
+          <h4>Books</h4>
+          <ul>
+            <li>"Natural Language Processing with Transformers" — Tunstall, von Werra & Wolf</li>
+            <li>"Designing Machine Learning Systems" — Chip Huyen</li>
+          </ul>
+        </div>
+        <div class="resource-card">
+          <h4>Documentation</h4>
+          <ul>
+            <li>LangChain RAG documentation</li>
+            <li>LlamaIndex retrieval guides</li>
+            <li>Your chosen vector database's official docs (Pinecone, Weaviate, Chroma, pgvector)</li>
+          </ul>
+        </div>
+        <div class="resource-card">
+          <h4>Research papers</h4>
+          <ul>
+            <li>Lewis et al., "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks" (2020)</li>
+            <li>Gao et al., "Retrieval-Augmented Generation for Large Language Models: A Survey" (2023)</li>
+          </ul>
+        </div>
+        <div class="resource-card">
+          <h4>Communities</h4>
+          <ul>
+            <li>r/LangChain and r/MachineLearning</li>
+            <li>Hugging Face forums</li>
+            <li>MLOps Community Slack/Discord</li>
+          </ul>
+        </div>
+        <div class="resource-card">
+          <h4>Practice platforms</h4>
+          <ul>
+            <li>Build a small RAG app over your own notes with LangChain or LlamaIndex</li>
+            <li>Try a hosted vector DB free tier (Pinecone, Weaviate Cloud, Chroma)</li>
+          </ul>
+        </div>
+        <div class="resource-card">
+          <h4>Search keywords</h4>
+          <ul>
+            <li>"vector database comparison"</li>
+            <li>"hybrid search BM25 vector"</li>
+            <li>"RAG evaluation faithfulness metrics"</li>
+          </ul>
+        </div>
+      </div>
+      <h3>Prompts to keep learning with an AI assistant</h3>
+      <ul class="clean">
+        <li>"Compare Pinecone, Weaviate, and Chroma for a small RAG project — what should I pick and why?"</li>
+        <li>"Walk me through building a minimal RAG pipeline in Python step by step."</li>
+        <li>"What are the most common RAG failure modes in production, and how do teams debug them?"</li>
+      </ul>
+      <div class="actions center">
+        <button onclick="window.print()">🖨️ Print / Save Notes</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ============ INIT ============ */
+renderBadges();
+renderRail();
+renderScreen();
+</script>
+</body>
+</html>
+
