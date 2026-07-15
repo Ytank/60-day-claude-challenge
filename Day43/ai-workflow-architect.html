@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Workflow Architect — Full-Stack Portfolio Build Pipeline</title>
+<style>
+:root{
+  --bg:#0D1117;
+  --surface:#141B24;
+  --surface-2:#1B2430;
+  --line:#2A3542;
+  --ink:#2B5B84;
+  --python:#4B8BBE;
+  --react:#61DAFB;
+  --amber:#F0B429;
+  --text:#E6EDF3;
+  --muted:#8B95A1;
+  --muted-2:#5C6773;
+  --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Consolas, monospace;
+  --body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --radius: 3px;
+  --glow: 0 0 0 1px rgba(97,218,251,0.15), 0 8px 24px rgba(0,0,0,0.4);
+}
+[data-theme="light"]{
+  --bg:#F4F6F8;
+  --surface:#FFFFFF;
+  --surface-2:#EEF1F4;
+  --line:#D8DEE4;
+  --text:#12181F;
+  --muted:#4B5560;
+  --muted-2:#7A828B;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--body);
+  line-height:1.55;
+  transition:background .3s ease, color .3s ease;
+}
+::selection{background:var(--react); color:#08131A;}
+a{color:var(--react);}
+button{font-family:var(--body); cursor:pointer;}
+
+/* ===== Scanline / grid backdrop ===== */
+.grid-backdrop{
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(97,218,251,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(97,218,251,0.035) 1px, transparent 1px);
+  background-size:42px 42px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+}
+
+/* ===== Top bar ===== */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 28px;
+  background:rgba(13,17,23,0.85);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+[data-theme="light"] .topbar{background:rgba(244,246,248,0.85);}
+.brand{display:flex; align-items:center; gap:10px; font-family:var(--mono); font-size:14px; letter-spacing:0.5px;}
+.brand .dot{width:9px;height:9px;border-radius:50%;background:var(--amber); box-shadow:0 0 8px var(--amber);}
+.brand b{font-weight:700;}
+.topbar-actions{display:flex; gap:10px; align-items:center;}
+.icon-btn{
+  background:var(--surface-2); border:1px solid var(--line); color:var(--text);
+  border-radius:var(--radius); padding:8px 12px; font-size:13px; font-family:var(--mono);
+  display:flex; align-items:center; gap:6px;
+  transition:border-color .2s, transform .15s;
+}
+.icon-btn:hover{border-color:var(--react); transform:translateY(-1px);}
+.progress-pill{
+  font-family:var(--mono); font-size:12px; color:var(--muted);
+  border:1px solid var(--line); border-radius:20px; padding:6px 12px;
+  display:flex; align-items:center; gap:8px;
+}
+.progress-pill .bar{width:70px; height:5px; background:var(--surface-2); border-radius:3px; overflow:hidden;}
+.progress-pill .fill{height:100%; background:linear-gradient(90deg, var(--python), var(--react)); width:0%; transition:width .4s ease;}
+
+/* ===== Hero ===== */
+.hero{
+  position:relative; z-index:1;
+  max-width:980px; margin:0 auto; padding:72px 28px 40px;
+  text-align:left;
+}
+.hero .eyebrow{
+  font-family:var(--mono); font-size:12.5px; color:var(--amber);
+  letter-spacing:2px; text-transform:uppercase; margin-bottom:18px;
+  display:flex; align-items:center; gap:10px;
+}
+.hero .eyebrow::before{content:"$"; color:var(--react);}
+.hero h1{
+  font-family:var(--mono); font-weight:700; font-size:clamp(28px,5vw,48px);
+  line-height:1.15; margin:0 0 18px; letter-spacing:-0.5px;
+}
+.hero h1 .accent{color:var(--react);}
+.hero p.sub{font-size:17px; color:var(--muted); max-width:640px; margin:0 0 28px;}
+.hero-tags{display:flex; gap:8px; flex-wrap:wrap;}
+.tag{
+  font-family:var(--mono); font-size:12px; padding:5px 10px; border-radius:20px;
+  border:1px solid var(--line); color:var(--muted);
+}
+.tag.py{border-color:var(--python); color:var(--python);}
+.tag.re{border-color:var(--react); color:var(--react);}
+
+/* ===== Pipeline nav ===== */
+.pipeline-nav{
+  position:relative; z-index:1; max-width:980px; margin:0 auto 10px; padding:0 28px;
+  display:flex; gap:0; overflow-x:auto; scrollbar-width:thin;
+}
+.pipeline-nav::-webkit-scrollbar{height:4px;}
+.pipeline-nav::-webkit-scrollbar-thumb{background:var(--line);}
+.pnav-item{
+  font-family:var(--mono); font-size:11.5px; color:var(--muted-2); white-space:nowrap;
+  padding:8px 14px; border-bottom:2px solid var(--line); cursor:pointer; transition:all .2s;
+  flex-shrink:0;
+}
+.pnav-item:hover{color:var(--text);}
+.pnav-item.active{color:var(--react); border-bottom-color:var(--react);}
+.pnav-item.done::before{content:"✓ "; color:var(--amber);}
+
+/* ===== Container ===== */
+.wrap{position:relative; z-index:1; max-width:980px; margin:0 auto; padding:20px 28px 80px;}
+
+/* ===== Pipeline / stages ===== */
+.pipeline{position:relative; padding-left:38px;}
+.pipeline::before{
+  content:""; position:absolute; left:13px; top:8px; bottom:8px; width:2px;
+  background:linear-gradient(180deg, var(--python), var(--react), var(--amber));
+  opacity:0.35;
+}
+.stage{position:relative; margin-bottom:26px;}
+.stage-node{
+  position:absolute; left:-38px; top:22px; width:28px; height:28px; border-radius:50%;
+  background:var(--surface); border:2px solid var(--line); display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:12px; font-weight:700; color:var(--muted); z-index:2;
+  transition:all .3s;
+}
+.stage.done .stage-node{border-color:var(--amber); color:var(--amber); background:rgba(240,180,41,0.08);}
+.stage-card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  overflow:hidden; transition:border-color .2s;
+}
+.stage-card:hover{border-color:var(--muted-2);}
+.stage-head{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:18px 22px; cursor:pointer; user-select:none;
+}
+.stage-head-left{display:flex; align-items:center; gap:14px; min-width:0;}
+.stage-title{font-family:var(--mono); font-weight:700; font-size:15.5px;}
+.stage-title .path{color:var(--muted-2); font-weight:400;}
+.stage-desc{color:var(--muted); font-size:13.5px; margin-top:3px;}
+.stage-head-right{display:flex; align-items:center; gap:10px; flex-shrink:0;}
+.time-chip{font-family:var(--mono); font-size:11px; color:var(--muted); border:1px solid var(--line); border-radius:20px; padding:4px 9px;}
+.chevron{transition:transform .3s; color:var(--muted-2); font-size:12px;}
+.stage.open .chevron{transform:rotate(90deg); color:var(--react);}
+.stage-body{max-height:0; overflow:hidden; transition:max-height .4s ease;}
+.stage.open .stage-body{max-height:6000px;}
+.stage-body-inner{padding:4px 22px 26px; border-top:1px solid var(--line);}
+
+.stage-check{
+  width:20px; height:20px; border-radius:4px; border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center; background:var(--surface-2);
+  flex-shrink:0;
+}
+.stage-check.checked{background:var(--amber); border-color:var(--amber); color:#1a1206; font-weight:700; font-size:13px;}
+.bookmark-btn{background:none; border:none; color:var(--muted-2); font-size:16px; padding:2px;}
+.bookmark-btn.active{color:var(--amber);}
+
+/* section blocks inside stage */
+.sec{margin-top:20px;}
+.sec-label{
+  font-family:var(--mono); font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
+  color:var(--react); margin-bottom:10px; display:flex; align-items:center; gap:8px;
+}
+.sec-label::after{content:""; flex:1; height:1px; background:var(--line);}
+ul.plain{margin:0; padding-left:18px;}
+ul.plain li{margin-bottom:6px; font-size:14.5px;}
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+@media(max-width:640px){.grid-2{grid-template-columns:1fr;}}
+
+.tool-card{
+  background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius);
+  padding:14px 16px;
+}
+.tool-card .tname{font-family:var(--mono); font-weight:700; font-size:14px; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;}
+.tool-card .tbadge{font-size:10px; font-family:var(--mono); color:var(--amber); border:1px solid var(--amber); border-radius:20px; padding:2px 7px;}
+.tool-card .twhy{font-size:13px; color:var(--muted); margin-top:6px;}
+.tool-card .talt{font-size:12px; color:var(--muted-2); margin-top:8px; padding-top:8px; border-top:1px dashed var(--line);}
+
+.prompt-box{
+  background:#080B10; border:1px solid var(--line); border-radius:var(--radius);
+  padding:14px 16px; font-family:var(--mono); font-size:12.8px; color:#B9F5D8;
+  position:relative; white-space:pre-wrap; margin-bottom:10px;
+}
+[data-theme="light"] .prompt-box{background:#0D1117; color:#9EE6C0;}
+.prompt-box .copy{
+  position:absolute; top:8px; right:8px; background:var(--surface-2); border:1px solid var(--line);
+  color:var(--muted); font-family:var(--body); font-size:11px; padding:3px 8px; border-radius:3px;
+}
+.prompt-box .copy:hover{color:var(--react); border-color:var(--react);}
+
+.mistake{
+  display:flex; gap:10px; font-size:14px; padding:8px 0; border-bottom:1px solid var(--line);
+}
+.mistake:last-child{border-bottom:none;}
+.mistake .x{color:#F0716B; font-family:var(--mono); flex-shrink:0;}
+
+.output-row{display:flex; gap:10px; align-items:flex-start; font-size:14px; margin-bottom:8px;}
+.output-row .chk{color:var(--react); font-family:var(--mono); flex-shrink:0;}
+
+.tip-band{
+  margin-top:18px; background:rgba(97,218,251,0.06); border:1px solid rgba(97,218,251,0.25);
+  border-radius:var(--radius); padding:12px 16px; font-size:13.5px; display:flex; gap:10px;
+}
+.tip-band .ico{color:var(--react); font-family:var(--mono);}
+
+.notes-area{margin-top:18px;}
+textarea.notes{
+  width:100%; min-height:70px; background:var(--surface-2); border:1px solid var(--line); color:var(--text);
+  border-radius:var(--radius); padding:10px 12px; font-family:var(--body); font-size:13.5px; resize:vertical;
+}
+textarea.notes:focus{outline:none; border-color:var(--react);}
+
+/* ===== Decision tree ===== */
+.decision-tree{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:24px;
+  margin:36px 0;
+}
+.dt-q{font-family:var(--mono); font-size:15px; margin-bottom:14px;}
+.dt-options{display:flex; gap:12px; flex-wrap:wrap;}
+.dt-btn{
+  background:var(--surface-2); border:1px solid var(--line); color:var(--text); border-radius:var(--radius);
+  padding:10px 16px; font-size:13.5px; transition:all .2s;
+}
+.dt-btn:hover{border-color:var(--react);}
+.dt-result{
+  margin-top:16px; padding:14px 16px; background:rgba(240,180,41,0.06); border:1px solid rgba(240,180,41,0.3);
+  border-radius:var(--radius); font-size:13.8px; display:none;
+}
+.dt-result.show{display:block;}
+
+/* ===== Section headers (major) ===== */
+.section-h{
+  font-family:var(--mono); font-size:12px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--amber); margin:56px 0 18px; display:flex; align-items:center; gap:12px;
+}
+.section-h::before{content:"// ";color:var(--muted-2);}
+.section-h::after{content:""; flex:1; height:1px; background:var(--line);}
+
+/* ===== Comparison table ===== */
+.cmp-table{width:100%; border-collapse:collapse; font-size:13.5px; margin-top:8px;}
+.cmp-table th, .cmp-table td{border:1px solid var(--line); padding:10px 12px; text-align:left;}
+.cmp-table th{background:var(--surface-2); font-family:var(--mono); font-size:12px; color:var(--react);}
+.cmp-table tr:hover td{background:var(--surface-2);}
+
+/* ===== Stack summary cards ===== */
+.stack-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px;}
+.stack-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px;}
+.stack-card .role{font-family:var(--mono); font-size:11px; color:var(--muted-2); text-transform:uppercase; letter-spacing:1px;}
+.stack-card .name{font-weight:700; font-size:15.5px; margin:6px 0 4px;}
+.stack-card .desc{font-size:13px; color:var(--muted);}
+
+/* ===== Chips / keyword cloud ===== */
+.kw-cloud{display:flex; flex-wrap:wrap; gap:8px;}
+.kw{font-family:var(--mono); font-size:12.5px; padding:6px 11px; border:1px solid var(--line); border-radius:20px; color:var(--muted);}
+
+/* footer */
+.footer{
+  text-align:center; padding:40px 20px; color:var(--muted-2); font-family:var(--mono); font-size:12px;
+  border-top:1px solid var(--line); margin-top:50px;
+}
+
+/* print */
+@media print{
+  .topbar, .pipeline-nav, .icon-btn, .bookmark-btn, .notes-area, .decision-tree{display:none !important;}
+  body{background:#fff; color:#000;}
+  .stage-body{max-height:none !important;}
+  .stage-card, .tool-card, .prompt-box{border:1px solid #ccc !important; background:#fff !important; color:#000 !important;}
+  .grid-backdrop{display:none;}
+}
+
+/* scroll reveal */
+.reveal{opacity:0; transform:translateY(14px); transition:opacity .5s ease, transform .5s ease;}
+.reveal.in{opacity:1; transform:translateY(0);}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important; animation:none !important;}
+}
+</style>
+</head>
+<body>
+<div class="grid-backdrop"></div>
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span> AI Workflow Architect <span style="color:var(--muted-2)">/ pipeline.exe</span></div>
+  <div class="topbar-actions">
+    <div class="progress-pill">
+      <span id="progressLabel">0/7 stages</span>
+      <div class="bar"><div class="fill" id="progressFill"></div></div>
+    </div>
+    <button class="icon-btn" id="printBtn">⎙ Print</button>
+    <button class="icon-btn" id="themeBtn">☾ Dark</button>
+  </div>
+</div>
+
+<div class="hero reveal">
+  <div class="eyebrow">workflow.init --domain=software-development</div>
+  <h1>Full-Stack Portfolio Build<br><span class="accent">Django/Flask + React</span> Pipeline</h1>
+  <p class="sub">A complete, end-to-end execution path for shipping a portfolio-worthy full-stack project — from idea validation to a live, demo-ready deployment — with the AI tools, prompts, and decisions mapped to every stage.</p>
+  <div class="hero-tags">
+    <span class="tag py">Python · Django/Flask</span>
+    <span class="tag re">React · Frontend</span>
+    <span class="tag">Solo Developer</span>
+    <span class="tag">Portfolio Project</span>
+  </div>
+</div>
+
+<div class="pipeline-nav" id="pipelineNav"></div>
+
+<div class="wrap">
+
+  <div class="decision-tree reveal">
+    <div class="dt-q">🌳 Decision tree — Django or Flask for this project?</div>
+    <div class="dt-options">
+      <button class="dt-btn" data-r="Go with <b>Django</b>. Its batteries-included admin panel, ORM, and auth system let you demo a fully-featured app (users, permissions, data models) fast — ideal when the portfolio piece needs to look 'complete' to a recruiter.">Need built-in admin, auth & ORM out of the box</button>
+      <button class="dt-btn" data-r="Go with <b>Flask</b>. Its minimal core lets you hand-pick each piece (routing, ORM, auth) which is better for showing recruiters you understand the underlying architecture, not just a framework's conventions.">Want full control / show architecture skill</button>
+      <button class="dt-btn" data-r="Go with <b>Flask + FastAPI-style structure</b>, or Django REST Framework if you expect the API to grow — both integrate cleanly with a React frontend via JSON APIs.">Project is API-heavy (React consumes JSON)</button>
+    </div>
+    <div class="dt-result" id="dtResult"></div>
+  </div>
+
+  <div class="section-h reveal">Execution Pipeline</div>
+  <div class="pipeline" id="pipeline"></div>
+
+  <div class="section-h reveal">Workflow Summary</div>
+  <div class="stage-card reveal" style="padding:22px;">
+    <p style="margin:0 0 12px; font-size:14.5px;">This pipeline takes a full-stack portfolio project from a validated idea to a deployed, recruiter-ready demo across <b>7 stages</b>: Planning → Architecture &amp; Design → Backend (Django/Flask) → Frontend (React) → Integration &amp; Testing → Deployment &amp; DevOps → Portfolio Presentation. Each stage pairs the right AI tools with concrete prompts so you spend time building, not figuring out what to do next.</p>
+    <p style="margin:0; font-size:14.5px; color:var(--muted);">Total estimated time: <b style="color:var(--text)">35–55 hours</b> spread over 2–4 weeks for a solo developer working part-time.</p>
+  </div>
+
+  <div class="section-h reveal">Recommended AI Stack</div>
+  <div class="stack-grid reveal">
+    <div class="stack-card"><div class="role">Planning &amp; docs</div><div class="name">Claude</div><div class="desc">Scoping, PRDs, architecture decisions, README &amp; docs generation.</div></div>
+    <div class="stack-card"><div class="role">UI/UX design</div><div class="name">Figma (First Draft / AI) + v0</div><div class="desc">Wireframes, component layouts, design-to-code handoff.</div></div>
+    <div class="stack-card"><div class="role">Backend coding</div><div class="name">Claude Code / Cursor</div><div class="desc">Django/Flask models, views, serializers, migrations.</div></div>
+    <div class="stack-card"><div class="role">Frontend coding</div><div class="name">Claude Code / Cursor + v0</div><div class="desc">React components, hooks, state management, styling.</div></div>
+    <div class="stack-card"><div class="role">Testing</div><div class="name">Claude + Pytest/Jest</div><div class="desc">Test case generation, edge-case discovery, coverage review.</div></div>
+    <div class="stack-card"><div class="role">DevOps</div><div class="name">Claude + Render/Railway docs</div><div class="desc">Dockerfiles, CI configs, deployment troubleshooting.</div></div>
+    <div class="stack-card"><div class="role">Presentation</div><div class="name">Claude + Loom</div><div class="desc">README polish, case-study write-up, demo video script.</div></div>
+  </div>
+
+  <div class="section-h reveal">Learning Resources</div>
+  <ul class="plain reveal">
+    <li>Official Django Tutorial (docs.djangoproject.com) — canonical reference for models, views, admin.</li>
+    <li>Flask Mega-Tutorial by Miguel Grinberg — deep, project-based Flask walkthrough.</li>
+    <li>React official docs (react.dev) — hooks, state, and modern patterns.</li>
+    <li>Django REST Framework docs — for building the JSON API your React app consumes.</li>
+    <li>MDN Web Docs — HTTP, fetch/CORS, and web fundamentals reference.</li>
+  </ul>
+
+  <div class="section-h reveal">Communities</div>
+  <div class="kw-cloud reveal">
+    <span class="kw">r/django</span><span class="kw">r/reactjs</span><span class="kw">r/webdev</span>
+    <span class="kw">Django Discord</span><span class="kw">Reactiflux Discord</span>
+    <span class="kw">DEV.to #fullstack</span><span class="kw">Indie Hackers</span><span class="kw">Stack Overflow</span>
+  </div>
+
+  <div class="section-h reveal">Search Keywords</div>
+  <div class="kw-cloud reveal">
+    <span class="kw">django react portfolio project</span><span class="kw">django rest framework react tutorial</span>
+    <span class="kw">flask react full stack example</span><span class="kw">deploy django react render</span>
+    <span class="kw">jwt auth django react</span><span class="kw">cors django react fetch</span>
+  </div>
+
+  <div class="section-h reveal">Additional AI Prompts</div>
+  <div class="prompt-box reveal">Review my Django models.py for normalization issues, missing indexes, and N+1 query risks. Suggest specific fixes with code.<button class="copy">Copy</button></div>
+  <div class="prompt-box reveal">Write a case-study style README section explaining the technical challenges I solved in [feature], for a recruiter audience.<button class="copy">Copy</button></div>
+  <div class="prompt-box reveal">Given this React component tree [paste], suggest where to introduce context or a state library, and why.<button class="copy">Copy</button></div>
+
+  <div class="section-h reveal">Future Automation Opportunities</div>
+  <ul class="plain reveal">
+    <li>Auto-generate API documentation from DRF serializers on every commit (CI step).</li>
+    <li>Add a GitHub Action that runs Claude-assisted code review comments on pull requests.</li>
+    <li>Auto-deploy preview environments per branch (Railway/Render preview deploys) for live recruiter demos.</li>
+    <li>Scheduled Lighthouse/accessibility audit on the deployed React app, reported weekly.</li>
+  </ul>
+
+</div>
+
+<div class="footer">AI Workflow Architect — generated for a Full-Stack (Django/Flask + React) Portfolio Project · Data saved locally in your browser</div>
+
+<script>
+const STAGES = [
+{
+  id:'planning', num:'01', title:'Planning & Scoping', path:'idea → validated scope', time:'3–5 hrs',
+  objectives:['Turn a vague idea into a scoped, demo-able project','Define the target audience of the portfolio piece (recruiters/hiring managers)','Lock a feature list that fits the time budget'],
+  tasks:['Write a 1-paragraph problem statement and pick a project theme (e.g. task tracker, marketplace, booking app)','List must-have vs nice-to-have features; cut anything not needed to prove full-stack skill','Sketch the core user flow (3–5 screens) in plain text','Define what "done" looks like for the portfolio (deployed URL + README + demo video)'],
+  tools:[
+    {name:'Claude', badge:'Primary', why:'Best for structured back-and-forth scoping, turning fuzzy ideas into a written PRD and feature list you can act on immediately.', alt:'ChatGPT, Notion AI'},
+    {name:'Perplexity', badge:'Research', why:'Fast market/reference-project research to see what similar portfolio projects include and how they\'re usually structured.', alt:'Google, Google Scholar'}
+  ],
+  prompts:['I want to build a full-stack portfolio project using Django/Flask and React. My idea is: [idea]. Help me scope this into a 2-week MVP: list must-have features, nice-to-haves, and what to explicitly cut.',
+           'Write a one-page PRD for this project: [idea + feature list]. Include user stories, core entities, and success criteria.'],
+  practices:['Scope for 2–4 weeks part-time, not months — recruiters value finished projects over ambitious unfinished ones','Pick a domain you can write realistic sample data for','Write down the "done" definition before writing any code'],
+  mistakes:['Choosing a to-do-list clone with no unique angle — makes the project forgettable','Scoping 15 features when 5 would demonstrate the same skills','Skipping written scope and jumping straight to coding'],
+  outputs:['1-page PRD / feature list (must-have vs nice-to-have)','Plain-text user flow (3–5 screens)','Definition of "done" for the deployed demo'],
+  tip:'Ask Claude to role-play as a skeptical hiring manager reviewing your scope — it will surface scope creep and vague requirements before you write a line of code.'
+},
+{
+  id:'architecture', num:'02', title:'Architecture & UI/UX Design', path:'scope → system design', time:'4–7 hrs',
+  objectives:['Decide the technical architecture (API shape, auth strategy, DB schema)','Produce wireframes for the core screens','Choose Django vs Flask deliberately (see decision tree above)'],
+  tasks:['Design the database schema: entities, relationships, and fields','Decide the API contract: REST endpoints, request/response shapes','Choose auth approach (session-based vs JWT) for the React ↔ backend link','Wireframe the 3–5 core screens and the component hierarchy for React'],
+  tools:[
+    {name:'Claude', badge:'Primary', why:'Excellent at proposing a DB schema and REST API contract from a feature list, and explaining trade-offs (JWT vs sessions, DRF vs plain Django views).', alt:'ChatGPT'},
+    {name:'Figma (First Draft)', badge:'Design', why:'Generates a first-pass UI layout from a text description, giving you a visual starting point instead of a blank canvas.', alt:'Excalidraw, v0.dev'},
+    {name:'dbdiagram.io', badge:'Schema', why:'Turns a plain-English schema description into a visual ER diagram you can sanity-check before building models.', alt:'drawSQL'}
+  ],
+  prompts:['Given these features [list], propose a normalized Postgres/SQLite schema: tables, fields, types, and relationships. Explain any many-to-many decisions.',
+           'Design a REST API contract (endpoints, methods, request/response JSON) for a Django REST Framework backend serving this feature set: [list]. Include auth endpoints.',
+           'Compare JWT vs Django session auth for a React frontend talking to a Django/DRF backend, for a project of this scope: [describe]. Recommend one and explain why.'],
+  practices:['Design the schema before writing a single model — changing it later means writing migrations twice','Keep the API contract in a markdown file in the repo as living documentation','Wireframe in grayscale first; add visual design after the flow is validated'],
+  mistakes:['Starting to code models before the schema is settled, leading to messy migrations','Over-engineering auth (building your own JWT refresh logic) instead of using a proven library','Designing UI before knowing what data the API will return'],
+  outputs:['ER diagram / schema doc','API contract markdown file','Low-fidelity wireframes for core screens'],
+  tip:'Paste your schema and API contract back into Claude and ask "what will break first as this project scales?" — cheap insurance before you\'ve written code around a flawed design.'
+},
+{
+  id:'backend', num:'03', title:'Backend Development (Django/Flask)', path:'design → working API', time:'8–14 hrs',
+  objectives:['Implement models, migrations, and the REST API','Add authentication and permissions','Seed realistic sample data for demos'],
+  tasks:['Set up the project (Django project/app or Flask app factory pattern) and version control','Implement models and run migrations','Build serializers/views (DRF) or route handlers (Flask) for each endpoint','Add auth (Django auth / DRF token or JWT; Flask-Login or Flask-JWT-Extended)','Write a seed script with realistic fake data (Faker)'],
+  tools:[
+    {name:'Claude Code / Claude', badge:'Primary', why:'Generates full model/view/serializer code from your schema and API contract, and explains Django/Flask idioms as it goes — faster than piecing together tutorials.', alt:'Cursor, GitHub Copilot'},
+    {name:'Django REST Framework docs + Claude', badge:'Reference', why:'DRF has strong conventions; pairing official docs with Claude for "why does DRF do X" keeps you learning the framework, not just copying code.', alt:'Flask-RESTful docs'},
+    {name:'Faker (Python lib) + Claude prompts', badge:'Data', why:'Generates realistic seed data so your demo doesn\'t look empty or fake with "test test test" entries.', alt:'Mockaroo'}
+  ],
+  prompts:['Here is my schema: [paste]. Generate Django models.py with correct field types, relationships, and Meta options.',
+           'Generate DRF serializers and viewsets for these models: [paste], following this API contract: [paste].',
+           'Write a Django management command (or Flask CLI script) that seeds the database with 50 realistic fake records for these models using Faker, respecting foreign key relationships.'],
+  practices:['Commit after each working model/endpoint, not at the end of the day','Use environment variables for secrets from day one (django-environ / python-dotenv)','Write at least one test per endpoint as you build it, not after'],
+  mistakes:['Hardcoding secret keys or DB credentials in settings.py','Building all models first, then all views, then testing everything at once (hard to debug)','Forgetting CORS configuration — this silently breaks the React frontend later'],
+  outputs:['Working Django/Flask project with migrations applied','Functional REST API (verified via curl/Postman)','Seed data script producing realistic demo data'],
+  tip:'Ask Claude to generate a Postman/Thunder Client collection alongside your API — it turns manual endpoint testing into a two-click check after every change.'
+},
+{
+  id:'frontend', num:'04', title:'Frontend Development (React)', path:'API → interactive UI', time:'8–14 hrs',
+  objectives:['Build the React app that consumes the backend API','Implement the core user flows from the wireframes','Handle loading, error, and empty states properly'],
+  tasks:['Scaffold the React app (Vite recommended) and set up routing','Build reusable components matching the wireframes','Wire up API calls (fetch/axios) with loading and error states','Implement auth flow on the frontend (login, token storage, protected routes)','Style the app to a portfolio-ready visual standard'],
+  tools:[
+    {name:'v0.dev / Claude', badge:'Primary', why:'Generates React components from a description or screenshot, giving you production-shaped JSX and Tailwind you refine rather than write from scratch.', alt:'Claude Code, Cursor'},
+    {name:'Claude', badge:'Logic', why:'Strong at wiring up data-fetching, state management (useState/useReducer/Context), and explaining why a given pattern fits your app\'s scale.', alt:'GitHub Copilot'},
+    {name:'React DevTools', badge:'Debugging', why:'Not AI, but essential alongside AI-generated code to verify component re-renders and prop flow are correct.', alt:'—'}
+  ],
+  prompts:['Build a React component (Vite + functional components) for a [list view] that fetches from GET /api/[endpoint], showing loading, empty, and error states.',
+           'Given this API response shape: [paste JSON], write a React hook (useX) that fetches, caches in state, and exposes loading/error/data.',
+           'Review this React component for accessibility issues (labels, keyboard navigation, contrast) and suggest fixes: [paste code].'],
+  practices:['Build one full vertical slice (one screen, fully wired to the API) before building all screens\' UI','Centralize API calls in a small service layer, not scattered fetch calls','Handle the empty state and error state for every list/data view, not just the happy path'],
+  mistakes:['Building all UI first with mock data, then discovering the real API shape doesn\'t match','Storing JWTs in localStorage without considering XSS exposure (discuss trade-offs, use httpOnly cookies if feasible)','Ignoring loading/error states, which makes the demo feel broken during a live walkthrough'],
+  outputs:['React app with routing and core screens implemented','Working auth flow (login/logout, protected routes)','Loading/error/empty states handled across the app'],
+  tip:'Record your own click-through of the app early and watch it back — you\'ll spot janky loading states and confusing flows faster than by staring at code.'
+},
+{
+  id:'integration', num:'05', title:'Integration & Testing', path:'pieces → verified whole', time:'6–9 hrs',
+  objectives:['Confirm frontend and backend work together correctly under real conditions','Catch bugs before deployment','Build confidence via automated tests'],
+  tasks:['Configure CORS and environment-based API URLs for local vs production','Write backend tests (pytest/Django test client) for critical endpoints','Write frontend tests (Jest/React Testing Library) for key components','Manually test the full user flow end-to-end, including edge cases (empty states, invalid input)'],
+  tools:[
+    {name:'Claude', badge:'Primary', why:'Generates targeted pytest/Jest test cases from your actual code, including edge cases you may not think to test yourself.', alt:'ChatGPT'},
+    {name:'Postman / Thunder Client', badge:'API testing', why:'Verifies backend endpoints in isolation before blaming the frontend for integration bugs.', alt:'Insomnia'},
+    {name:'Claude (debugging mode)', badge:'Debugging', why:'Paste a stack trace or CORS error and get a targeted explanation plus fix, faster than searching Stack Overflow.', alt:'Cursor chat'}
+  ],
+  prompts:['Write pytest tests for this Django view/serializer: [paste code], covering success, validation errors, and permission checks.',
+           'Write React Testing Library tests for this component: [paste], covering the loading, error, and success render states.',
+           'I\'m getting this CORS error: [paste error] between a Vite React app on localhost:5173 and Django on localhost:8000. What\'s the exact fix?'],
+  practices:['Test the unhappy paths deliberately (bad input, expired token, empty DB) not just the happy path','Keep a running bug list during manual testing instead of fixing ad hoc','Run the full flow as a fresh user (clear cookies/storage) before considering it "done"'],
+  mistakes:['Only testing on your own dev machine with warm cache and existing sessions','Skipping backend tests because "it works when I click through it"','Not testing what happens when the API is slow or returns an error'],
+  outputs:['Passing backend test suite for core endpoints','Passing frontend component tests for key flows','A short list of known issues, triaged and either fixed or documented'],
+  tip:'Ask Claude to generate a test matrix (endpoint × scenario) as a table first — it\'s a fast way to see testing gaps before writing test code.'
+},
+{
+  id:'deployment', num:'06', title:'Deployment & DevOps', path:'local → live URL', time:'4–7 hrs',
+  objectives:['Get the app live on a public URL','Set up a repeatable deployment process','Handle production configuration safely'],
+  tasks:['Containerize the backend (Dockerfile) or use a platform-native deploy (Render/Railway)','Configure production environment variables and a production database (Postgres)','Deploy the React build (Vercel/Netlify) and point it at the live API','Set up a basic CI check (run tests on push) via GitHub Actions'],
+  tools:[
+    {name:'Claude', badge:'Primary', why:'Writes Dockerfiles, GitHub Actions YAML, and platform-specific config from a description of your stack, and explains each line so you understand what you\'re deploying.', alt:'ChatGPT'},
+    {name:'Render / Railway', badge:'Hosting', why:'Simple, low-config hosting well suited to a Django/Flask + Postgres portfolio project without heavy DevOps overhead.', alt:'Fly.io, Heroku'},
+    {name:'Vercel / Netlify', badge:'Frontend hosting', why:'Zero-config static/React deploys with automatic preview URLs per branch — useful for showing iterations to others.', alt:'GitHub Pages (SPA-only)'}
+  ],
+  prompts:['Write a Dockerfile for a Django app using Gunicorn, plus a docker-compose.yml with a Postgres service, for local + production parity.',
+           'Write a GitHub Actions workflow that runs pytest and the React test suite on every pull request.',
+           'I\'m deploying a Django backend to Render and a React (Vite) frontend to Vercel. Walk me through the exact environment variables and CORS settings I need on both sides.'],
+  practices:['Use the same database engine (Postgres) in dev and prod to avoid environment-specific bugs','Never commit .env files; use the platform\'s secret manager','Set DEBUG=False and configure ALLOWED_HOSTS correctly before calling it deployed'],
+  mistakes:['Leaving Django DEBUG=True in production, which leaks sensitive error details','Forgetting to run migrations on the production database after deploy','Hardcoding localhost URLs in the React app instead of using environment variables'],
+  outputs:['Live backend URL with production database','Live frontend URL pointing at the production API','A basic CI workflow running tests automatically'],
+  tip:'Deploy early and often — get a bare-bones version live in stage 1 of this step, then iterate. A working live URL from day one de-risks the whole project.'
+},
+{
+  id:'presentation', num:'07', title:'Portfolio Presentation & Launch', path:'live app → recruiter-ready story', time:'3–5 hrs',
+  objectives:['Package the project so a recruiter understands its value in under 2 minutes','Produce a polished README and demo material','Prepare to talk about technical decisions in interviews'],
+  tasks:['Write a README covering the problem, tech stack, architecture decisions, and setup instructions','Record a 60–90 second demo video/GIF of the core user flow','Write a short case-study section: challenges faced and how you solved them','Prepare 3–4 talking points about technical trade-offs for interviews'],
+  tools:[
+    {name:'Claude', badge:'Primary', why:'Turns your rough notes about the build into a polished, recruiter-facing README and case study, in your own voice and technical detail level.', alt:'ChatGPT, Notion AI'},
+    {name:'Loom', badge:'Demo video', why:'Fast screen-recording with narration for the demo video, no editing software required.', alt:'OBS Studio'},
+    {name:'Carbon / Ray.so', badge:'Code snippets', why:'Produces clean, shareable code screenshots for the README or case study, better than plain terminal screenshots.', alt:'—'}
+  ],
+  prompts:['Here are my rough notes on this project: [notes]. Write a professional README.md with sections: Overview, Tech Stack, Features, Architecture, Setup, and Screenshots placeholder.',
+           'Turn this into a case-study paragraph for my portfolio site: I built [feature] and ran into [problem], solved it by [solution]. Make it recruiter-readable, not overly technical.',
+           'Give me 4 likely interview questions about a Django/Flask + React project like this one, with strong sample answers based on: [project summary].'],
+  practices:['Lead the README with what the project does and a live link/GIF, not a wall of setup instructions','Explain one non-trivial technical decision (schema choice, auth approach) — it signals judgment, not just code output','Keep the demo video under 90 seconds and script it before recording'],
+  mistakes:['A README that\'s just "npm install && run" with no context on what the project actually does','No live link — asking a recruiter to clone and run the project themselves','Overclaiming scope ("full CI/CD pipeline") for something that\'s actually a single manual deploy'],
+  outputs:['Polished README.md with screenshots/GIF and live link','60–90 second demo video','Case-study write-up ready to paste into a portfolio site or resume'],
+  tip:'Ask Claude to read your README back as a skeptical recruiter and list the first 3 questions it would ask — fix those gaps before you publish.'
+}
+];
+
+const pipelineEl = document.getElementById('pipeline');
+const navEl = document.getElementById('pipelineNav');
+const STORAGE_KEY = 'awa_fullstack_state_v1';
+
+function loadState(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {done:{}, bookmarks:{}, notes:{}, open:{}}; }
+  catch(e){ return {done:{}, bookmarks:{}, notes:{}, open:{}}; }
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+let state = loadState();
+
+function renderNav(){
+  navEl.innerHTML = STAGES.map(s => `<div class="pnav-item ${state.done[s.id]?'done':''}" data-jump="${s.id}">${s.num} ${s.title}</div>`).join('');
+}
+
+function toolCard(t){
+  return `<div class="tool-card">
+    <div class="tname"><span>${t.name}</span><span class="tbadge">${t.badge}</span></div>
+    <div class="twhy">${t.why}</div>
+    <div class="talt"><b>Alternative:</b> ${t.alt}</div>
+  </div>`;
+}
+
+function renderStages(){
+  pipelineEl.innerHTML = STAGES.map(s => `
+    <div class="stage reveal ${state.open[s.id]?'open':''} ${state.done[s.id]?'done':''}" id="stage-${s.id}" data-id="${s.id}">
+      <div class="stage-node">${s.num}</div>
+      <div class="stage-card">
+        <div class="stage-head" data-toggle="${s.id}">
+          <div class="stage-head-left">
+            <div class="stage-check ${state.done[s.id]?'checked':''}" data-check="${s.id}">${state.done[s.id]?'✓':''}</div>
+            <div>
+              <div class="stage-title">${s.title} <span class="path">${s.path}</span></div>
+              <div class="stage-desc">${s.objectives[0]}</div>
+            </div>
+          </div>
+          <div class="stage-head-right">
+            <span class="time-chip">⏱ ${s.time}</span>
+            <button class="bookmark-btn ${state.bookmarks[s.id]?'active':''}" data-bookmark="${s.id}">★</button>
+            <span class="chevron">▶</span>
+          </div>
+        </div>
+        <div class="stage-body">
+          <div class="stage-body-inner">
+            <div class="sec"><div class="sec-label">Objectives</div><ul class="plain">${s.objectives.map(o=>`<li>${o}</li>`).join('')}</ul></div>
+            <div class="sec"><div class="sec-label">Tasks</div><ul class="plain">${s.tasks.map(o=>`<li>${o}</li>`).join('')}</ul></div>
+            <div class="sec"><div class="sec-label">Best AI Tools</div><div class="grid-2">${s.tools.map(toolCard).join('')}</div></div>
+            <div class="sec"><div class="sec-label">Prompt Examples</div>${s.prompts.map(p=>`<div class="prompt-box">${p}<button class="copy" data-copy>Copy</button></div>`).join('')}</div>
+            <div class="grid-2">
+              <div class="sec"><div class="sec-label">Best Practices</div><ul class="plain">${s.practices.map(o=>`<li>${o}</li>`).join('')}</ul></div>
+              <div class="sec"><div class="sec-label">Common Mistakes</div>${s.mistakes.map(o=>`<div class="mistake"><span class="x">✕</span><span>${o}</span></div>`).join('')}</div>
+            </div>
+            <div class="sec"><div class="sec-label">Expected Outputs</div>${s.outputs.map(o=>`<div class="output-row"><span class="chk">▸</span><span>${o}</span></div>`).join('')}</div>
+            <div class="tip-band"><span class="ico">i</span><span>${s.tip}</span></div>
+            <div class="notes-area">
+              <div class="sec-label">Your Notes</div>
+              <textarea class="notes" data-notes="${s.id}" placeholder="Jot down decisions, blockers, or links for this stage...">${state.notes[s.id]||''}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateProgress(){
+  const doneCount = STAGES.filter(s=>state.done[s.id]).length;
+  document.getElementById('progressLabel').textContent = `${doneCount}/${STAGES.length} stages`;
+  document.getElementById('progressFill').style.width = (doneCount/STAGES.length*100)+'%';
+}
+
+function attachHandlers(){
+  pipelineEl.querySelectorAll('[data-toggle]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-check]') || e.target.closest('[data-bookmark]')) return;
+      const id = el.getAttribute('data-toggle');
+      state.open[id] = !state.open[id];
+      document.getElementById('stage-'+id).classList.toggle('open', state.open[id]);
+      saveState();
+    });
+  });
+  pipelineEl.querySelectorAll('[data-check]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const id = el.getAttribute('data-check');
+      state.done[id] = !state.done[id];
+      saveState();
+      renderStages(); renderNav(); attachHandlers(); updateProgress();
+      restoreOpenStates();
+    });
+  });
+  pipelineEl.querySelectorAll('[data-bookmark]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const id = el.getAttribute('data-bookmark');
+      state.bookmarks[id] = !state.bookmarks[id];
+      el.classList.toggle('active', state.bookmarks[id]);
+      saveState();
+    });
+  });
+  pipelineEl.querySelectorAll('[data-notes]').forEach(el=>{
+    el.addEventListener('input', ()=>{
+      state.notes[el.getAttribute('data-notes')] = el.value;
+      saveState();
+    });
+  });
+  pipelineEl.querySelectorAll('[data-copy]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const text = el.parentElement.textContent.replace('Copy','').trim();
+      navigator.clipboard.writeText(text).then(()=>{ el.textContent='Copied ✓'; setTimeout(()=>el.textContent='Copy',1400); });
+    });
+  });
+  navEl.querySelectorAll('[data-jump]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id = el.getAttribute('data-jump');
+      state.open[id] = true;
+      document.getElementById('stage-'+id).classList.add('open');
+      saveState();
+      document.getElementById('stage-'+id).scrollIntoView({behavior:'smooth', block:'start'});
+      setTimeout(highlightNav, 400);
+    });
+  });
+}
+
+function restoreOpenStates(){
+  STAGES.forEach(s=>{
+    const stageEl = document.getElementById('stage-'+s.id);
+    if(stageEl) stageEl.classList.toggle('open', !!state.open[s.id]);
+  });
+}
+
+function highlightNav(){
+  let closest = null, closestDist = Infinity;
+  STAGES.forEach(s=>{
+    const el = document.getElementById('stage-'+s.id);
+    const dist = Math.abs(el.getBoundingClientRect().top - 140);
+    if(dist < closestDist){ closestDist = dist; closest = s.id; }
+  });
+  navEl.querySelectorAll('.pnav-item').forEach(el=>el.classList.remove('active'));
+  const activeEl = navEl.querySelector(`[data-jump="${closest}"]`);
+  if(activeEl) activeEl.classList.add('active');
+}
+
+renderNav();
+renderStages();
+attachHandlers();
+updateProgress();
+window.addEventListener('scroll', ()=>{ requestAnimationFrame(highlightNav); });
+highlightNav();
+
+// Theme toggle
+const themeBtn = document.getElementById('themeBtn');
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  themeBtn.innerHTML = t==='light' ? '☀ Light' : '☾ Dark';
+  localStorage.setItem('awa_theme', t);
+}
+applyTheme(localStorage.getItem('awa_theme') || 'dark');
+themeBtn.addEventListener('click', ()=>{
+  applyTheme(document.documentElement.getAttribute('data-theme')==='light' ? 'dark' : 'light');
+});
+
+// Print
+document.getElementById('printBtn').addEventListener('click', ()=>{
+  STAGES.forEach(s=>{ state.open[s.id]=true; });
+  restoreOpenStates();
+  setTimeout(()=>window.print(), 200);
+});
+
+// Decision tree
+document.querySelectorAll('.dt-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const res = document.getElementById('dtResult');
+    res.innerHTML = btn.getAttribute('data-r');
+    res.classList.add('show');
+  });
+});
+
+// Scroll reveal
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+}, {threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
