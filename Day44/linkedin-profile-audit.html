@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkedIn Profile Audit — Yuvraj</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg:#f6f4ee; --surface:#ffffff; --surface-2:#efece0;
+  --ink:#1c2333; --ink-dim:#5b6478; --ink-faint:#93998a;
+  --line:#e2ddd0; --line-strong:#d0c9b6;
+  --navy:#1b2a4a; --navy-soft:rgba(27,42,74,0.07); --navy-strong:#101a30;
+  --gold:#c99a3d; --gold-soft:rgba(201,154,61,0.13);
+  --red:#c0392b; --red-soft:rgba(192,57,43,0.07);
+  --green:#1f8a5f; --green-soft:rgba(31,138,95,0.08);
+  --shadow:0 10px 30px rgba(28,33,48,0.09); --shadow-sm:0 2px 10px rgba(28,33,48,0.05);
+}
+*{box-sizing:border-box;}
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; }
+h1,h2,h3,h4{ font-family:'Lora',serif; margin:0; }
+.mono{ font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; }
+button{ font-family:inherit; cursor:pointer; }
+:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+.wrap{ max-width:920px; margin:0 auto; padding:0 22px 90px; }
+
+/* ===== HERO ===== */
+.hero{ background:var(--navy); color:#f2f0e8; padding:44px 22px 54px; }
+.hero-inner{ max-width:920px; margin:0 auto; }
+.eyebrow{ font-size:11px; letter-spacing:1.6px; text-transform:uppercase; color:#c9b98a; font-weight:700; margin-bottom:10px; }
+.hero h1{ font-size:30px; font-weight:700; line-height:1.25; max-width:640px; }
+.hero p.sub{ font-size:14px; color:#b7bdd0; margin-top:10px; max-width:560px; line-height:1.6; }
+.hero-scores{ display:flex; gap:16px; margin-top:26px; flex-wrap:wrap; }
+.hero-score-card{ background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); border-radius:14px; padding:14px 22px; text-align:center; }
+.hero-score-card .n{ font-family:'IBM Plex Mono',monospace; font-size:30px; font-weight:700; }
+.hero-score-card.before .n{ color:#e8a89e; }
+.hero-score-card.after .n{ color:#8fe0bb; }
+.hero-score-card .l{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.6px; color:#a9afc4; margin-top:2px; }
+.hero-arrow{ display:flex; align-items:center; font-size:22px; color:#c9b98a; }
+
+/* ===== TABS ===== */
+.tabbar{ position:sticky; top:0; z-index:30; background:var(--bg); border-bottom:1px solid var(--line); padding:10px 0; }
+.tabbar-inner{ max-width:920px; margin:0 auto; padding:0 22px; display:flex; gap:6px; overflow-x:auto; }
+.tab-btn{ border:none; background:transparent; padding:9px 14px; border-radius:20px; font-size:13px; font-weight:700; color:var(--ink-dim); white-space:nowrap; transition:all .15s ease; }
+.tab-btn:hover{ background:var(--surface-2); color:var(--ink); }
+.tab-btn.active{ background:var(--navy); color:#fff; }
+
+section.panel{ padding-top:38px; scroll-margin-top:66px; }
+.panel-head{ margin-bottom:20px; }
+.panel-head h2{ font-size:22px; }
+.panel-head p{ color:var(--ink-dim); font-size:13.5px; margin-top:6px; max-width:600px; line-height:1.6; }
+
+/* ===== CARD / REPORT ROW ===== */
+.card{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:20px 22px; box-shadow:var(--shadow-sm); margin-bottom:16px; }
+.report-row{ margin-bottom:14px; }
+.report-row-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.report-row-head h3{ font-size:15.5px; }
+.score-pill{ font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13px; padding:4px 12px; border-radius:20px; display:flex; align-items:center; gap:6px; }
+.score-pill.s-high{ background:var(--green-soft); color:var(--green); }
+.score-pill.s-mid{ background:var(--gold-soft); color:#8a651a; }
+.score-pill.s-low{ background:var(--red-soft); color:var(--red); }
+.reaction{ background:var(--surface-2); border-radius:10px; padding:10px 13px; font-size:12.8px; color:var(--ink-dim); font-style:italic; margin-bottom:12px; line-height:1.55; }
+.roast-block{ display:flex; gap:10px; margin-bottom:9px; font-size:12.8px; line-height:1.6; }
+.roast-block .ic{ flex-shrink:0; }
+.roast-block b{ color:var(--ink); }
+.quote{ background:var(--red-soft); border-left:3px solid var(--red); padding:2px 8px; border-radius:4px; font-family:'IBM Plex Mono',monospace; font-size:11.8px; color:var(--red); }
+
+/* ===== REBUILD ===== */
+.option-card{ border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:12px; background:var(--surface); }
+.option-card .tag{ font-size:10px; text-transform:uppercase; letter-spacing:0.6px; font-weight:800; color:var(--gold); margin-bottom:6px; }
+.option-card .headline-text{ font-size:14.5px; font-weight:600; line-height:1.5; margin-bottom:10px; }
+.option-card .when{ font-size:12px; color:var(--ink-dim); line-height:1.6; }
+.copy-btn{ border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font-size:11.5px; font-weight:700; padding:6px 11px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; margin-top:8px; transition:all .15s ease; }
+.copy-btn:hover{ border-color:var(--gold); color:#8a651a; }
+.copy-btn.copied{ background:var(--green-soft); border-color:var(--green); color:var(--green); }
+
+.about-block{ border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px; }
+.about-block .lbl{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.5px; color:var(--ink-faint); font-weight:700; margin-bottom:6px; }
+.about-block p{ font-size:13.3px; line-height:1.65; margin:0; }
+.about-block.hook{ border-left:3px solid var(--gold); }
+.about-block.story{ border-left:3px solid var(--navy); }
+.about-block.proof{ border-left:3px solid var(--green); }
+.about-block.proof p{ white-space:pre-line; }
+.about-block.cta{ border-left:3px solid var(--red); }
+.keyword-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+.chip{ background:var(--navy-soft); color:var(--navy); font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; }
+
+.bullet-compare{ margin-bottom:16px; }
+.bullet-compare .b-lbl{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.5px; font-weight:800; margin-bottom:5px; }
+.b-before{ background:var(--red-soft); border-radius:10px; padding:10px 13px; font-size:12.6px; color:#7a2e24; text-decoration:line-through; text-decoration-color:rgba(192,57,43,0.5); margin-bottom:6px; line-height:1.55; }
+.b-after{ background:var(--green-soft); border-radius:10px; padding:10px 13px; font-size:13px; color:#0f5c3f; font-weight:500; line-height:1.55; }
+.b-note{ font-size:11.5px; color:var(--ink-faint); margin-top:6px; font-style:italic; }
+
+.skills-cols{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:640px){ .skills-cols{ grid-template-columns:1fr; } }
+.skill-add{ display:flex; gap:9px; align-items:baseline; padding:7px 0; border-bottom:1px solid var(--line); font-size:13px; }
+.skill-add .num{ font-family:'IBM Plex Mono',monospace; color:var(--gold); font-weight:700; font-size:12px; }
+.skill-remove{ padding:9px 0; border-bottom:1px solid var(--line); }
+.skill-remove b{ font-size:13px; }
+.skill-remove p{ margin:3px 0 0; font-size:12px; color:var(--ink-dim); line-height:1.5; }
+.pin-row{ background:var(--gold-soft); border-radius:10px; padding:10px 14px; margin-top:12px; font-size:12.8px; }
+
+/* ===== SCORECARD ===== */
+.scorebar-row{ margin-bottom:16px; }
+.scorebar-row .sr-head{ display:flex; justify-content:space-between; font-size:13px; font-weight:600; margin-bottom:6px; }
+.scorebar-row .sr-head .delta{ font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--green); }
+.scorebar-track{ position:relative; height:20px; background:var(--surface-2); border-radius:20px; overflow:hidden; }
+.scorebar-fill{ position:absolute; top:0; left:0; height:100%; border-radius:20px; transition:width 1s cubic-bezier(.2,.8,.3,1); }
+.scorebar-fill.before-fill{ background:repeating-linear-gradient(135deg, var(--red) 0px, var(--red) 6px, #d97060 6px, #d97060 12px); opacity:0.55; }
+.scorebar-fill.after-fill{ background:var(--green); }
+.overall-hero{ display:flex; align-items:center; justify-content:center; gap:22px; padding:26px; background:var(--navy); border-radius:18px; color:#fff; margin-bottom:22px; flex-wrap:wrap; }
+.overall-hero .oc{ text-align:center; }
+.overall-hero .oc .n{ font-family:'IBM Plex Mono',monospace; font-size:38px; font-weight:700; }
+.overall-hero .oc.before .n{ color:#e8a89e; }
+.overall-hero .oc.after .n{ color:#8fe0bb; }
+.overall-hero .oc .l{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.6px; color:#b7bdd0; }
+.overall-hero .arrow{ font-size:26px; color:var(--gold); }
+
+/* ===== 7 DAY PLAN ===== */
+.day-item{ border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--surface); }
+.day-head{ display:flex; align-items:center; gap:12px; padding:14px 18px; width:100%; border:none; background:transparent; text-align:left; }
+.day-head .day-num{ width:34px; height:34px; border-radius:9px; background:var(--navy); color:#fff; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.day-head .day-title{ flex:1; font-size:14px; font-weight:700; }
+.day-head .chev{ color:var(--ink-faint); transition:transform .2s ease; font-size:12px; }
+.day-item.open .chev{ transform:rotate(90deg); }
+.day-body{ display:none; padding:0 18px 18px 64px; }
+.day-item.open .day-body{ display:block; }
+.day-body p{ font-size:12.8px; color:var(--ink-dim); line-height:1.65; margin:0 0 10px; }
+.checklist-item{ display:flex; align-items:center; gap:9px; padding:6px 0; font-size:13px; }
+.checklist-item input{ width:16px; height:16px; accent-color:var(--gold); }
+.checklist-item.done label{ text-decoration:line-through; color:var(--ink-faint); }
+.draft-box{ background:var(--surface-2); border-radius:10px; padding:13px 15px; font-size:12.8px; line-height:1.6; white-space:pre-line; margin-bottom:8px; }
+.formula-box{ background:var(--gold-soft); border-radius:10px; padding:12px 15px; font-size:12.8px; line-height:1.6; margin-bottom:8px; }
+.target-list{ margin:0 0 10px; padding-left:18px; font-size:12.6px; color:var(--ink-dim); line-height:1.7; }
+
+/* ===== SUMMARY CARD ===== */
+.summary-card{ background:linear-gradient(155deg, var(--navy) 0%, var(--navy-strong) 100%); border-radius:20px; padding:30px 30px 26px; color:#f2f0e8; box-shadow:var(--shadow); max-width:520px; margin:0 auto; }
+.summary-card .sc-eyebrow{ font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:#c9b98a; font-weight:700; margin-bottom:14px; }
+.summary-card h3{ font-size:19px; line-height:1.4; margin-bottom:18px; color:#fff; }
+.summary-scores{ display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.summary-scores .n{ font-family:'IBM Plex Mono',monospace; font-size:30px; font-weight:700; }
+.summary-scores .before .n{ color:#e8a89e; } .summary-scores .after .n{ color:#8fe0bb; }
+.summary-scores .l{ font-size:10px; text-transform:uppercase; color:#a9afc4; }
+.summary-mistakes{ margin:0 0 18px; padding-left:20px; font-size:12.8px; line-height:1.75; color:#d7dbe8; }
+.summary-highlight{ background:rgba(201,154,61,0.15); border:1px solid rgba(201,154,61,0.4); border-radius:12px; padding:12px 15px; font-size:12.6px; line-height:1.6; }
+.summary-highlight b{ color:#e8c489; }
+.summary-actions{ display:flex; justify-content:center; margin-top:18px; }
+.summary-actions .copy-btn{ background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2); color:#f2f0e8; }
+
+.toast{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(16px); background:var(--navy); color:#fff; padding:11px 19px; border-radius:11px; font-size:12.8px; font-weight:600; box-shadow:var(--shadow); opacity:0; transition:all .22s ease; z-index:100; }
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+@media print{ .tabbar{ position:static; } section.panel{ display:block !important; } }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">LinkedIn Profile Audit</div>
+    <h1>Your headline undersells you. Your hook is excellent. Here's the full rebuild.</h1>
+    <p class="sub">17 years of real, quantified infrastructure wins are sitting behind a keyword-dump headline and a thin skills list. Let's fix the packaging so it matches the substance.</p>
+    <div class="hero-scores">
+      <div class="hero-score-card before"><div class="n">70</div><div class="l">Before / 100</div></div>
+      <div class="hero-arrow">→</div>
+      <div class="hero-score-card after"><div class="n">90</div><div class="l">After / 100</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar">
+  <div class="tabbar-inner" id="tabbarInner">
+    <button class="tab-btn active" data-target="roast">The Roast</button>
+    <button class="tab-btn" data-target="rebuild">The Rebuild</button>
+    <button class="tab-btn" data-target="scorecard">Scorecard</button>
+    <button class="tab-btn" data-target="plan">7-Day Plan</button>
+    <button class="tab-btn" data-target="summary">Summary Card</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ============ ROAST ============ -->
+<section class="panel" id="roast">
+  <div class="panel-head">
+    <h2>Part 1 — The Roast</h2>
+    <p>Scored the way a recruiter actually reads: fast, skeptical, and looking for a reason to move on. Here's what your profile is really saying right now.</p>
+  </div>
+
+  <div class="card">
+    <div class="report-row">
+      <div class="report-row-head"><h3>Headline</h3><span class="score-pill s-mid">6/10</span></div>
+      <div class="reaction">"Okay, he clearly knows infra and security... but is he a Manager or a Director-track leader? This reads like a keyword dump — and I almost missed the one line that actually sells him, because it's buried last."</div>
+      <div class="roast-block"><span class="ic">❌</span><span><b>The problem:</b> <span class="quote">Dat Protection l Storage</span> — a typo ("Dat" for "Data") and a lowercase "l" standing in for a pipe, which breaks the clean scan pattern of the rest of the line. Meanwhile your single strongest phrase — "17 Yrs Building Zero-Downtime Enterprises" — sits dead last, after nine other phrases.</span></div>
+      <div class="roast-block"><span class="ic">🧠</span><span><b>Why it hurts:</b> On mobile, LinkedIn truncates headlines around the first 60-80 characters. Right now the very first thing visible is "Technical Manager| Cyber Security -DR | BCP|..." — a title that reads mid-level, not Director/VP.</span></div>
+      <div class="roast-block"><span class="ic">🔍</span><span><b>Invisible cost:</b> Recruiters scanning for Director/VP-level candidates often filter mentally by the first few words of a headline. A headline that opens with "Technical Manager" risks getting sorted into "not senior enough" before the profile is ever opened.</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="report-row">
+      <div class="report-row-head"><h3>About — First 2 Lines (the hook)</h3><span class="score-pill s-high">9/10</span></div>
+      <div class="reaction">"Wait — that's a good line. I'm clicking 'see more.'"</div>
+      <div class="roast-block"><span class="ic">✅</span><span><b>No real problem here.</b> "When critical infrastructure fails at 2 AM, organisations need someone who already built the recovery plan. That's what I do." is a genuinely strong, specific hook — it earns the click. This is your strongest asset. Don't touch it.</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="report-row">
+      <div class="report-row-head"><h3>About — Full Section</h3><span class="score-pill s-mid">8/10</span></div>
+      <div class="reaction">"Solid — real wins, real numbers. But it ends on just an email address. I wanted a clearer next step."</div>
+      <div class="roast-block"><span class="ic">❌</span><span><b>The problem:</b> <span class="quote">Open to conversations: yuvraj.tank@gmail.com</span> — the entire call-to-action is a bare email address, no explicit ask.</span></div>
+      <div class="roast-block"><span class="ic">🧠</span><span><b>Why it hurts:</b> A CTA that doesn't say what to do ("message me about X," "let's talk if you're hiring for Y") relies on the reader to invent their own reason to reach out. Most won't bother.</span></div>
+      <div class="roast-block"><span class="ic">🔍</span><span><b>Invisible cost:</b> You're likely getting profile views from impressed-but-passive visitors that never convert into a message, because nothing told them exactly what conversation you're inviting.</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="report-row">
+      <div class="report-row-head"><h3>Experience</h3><span class="score-pill s-mid">7/10</span></div>
+      <div class="reaction">"Good structure, real metrics on two of three bullets — but bullet one says 'achieving price optimisation targets' without telling me what the targets were. Bullet three says 'scaled team performance' but never says by how much."</div>
+      <div class="roast-block"><span class="ic">❌</span><span><b>The problem:</b> <span class="quote">achieving price optimisation targets for a multi-million-pound client account</span> has no % or £ figure attached. <span class="quote">Scaled team performance by leading and mentoring a 12-member team</span> asserts "scaled performance" but never quantifies it.</span></div>
+      <div class="roast-block"><span class="ic">🧠</span><span><b>Why it hurts:</b> Recruiters and hiring managers weight numbers far more heavily than adjectives. "Achieved targets" and "scaled performance" are claims; %, £, and time-bound results are evidence.</span></div>
+      <div class="roast-block"><span class="ic">🔍</span><span><b>Invisible cost:</b> In a stack of 50 similarly-titled candidates, the ones with hard numbers get shortlisted first — vague achievement language blends into everyone else's resume-speak.</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="report-row">
+      <div class="report-row-head"><h3>Skills &amp; Keywords</h3><span class="score-pill s-low">5/10</span></div>
+      <div class="reaction">"BCP, DR, Azure, Cyber Security — good, I'd find him for those. But 'Storage,' 'Architect,' and 'Claude' as standalone skills? Those aren't doing any search-matching work for a Director-level candidate."</div>
+      <div class="roast-block"><span class="ic">❌</span><span><b>The problem:</b> <span class="quote">Storage</span>, <span class="quote">Architect</span>, and <span class="quote">Claude</span> are sitting in your top skills, competing for space against terms that actually map to Director/Infrastructure searches.</span></div>
+      <div class="roast-block"><span class="ic">🧠</span><span><b>Why it hurts:</b> LinkedIn's search matches recruiter queries to your Skills section. "Architect" is a role, not a searchable competency; "Storage" is too generic to signal DR/BCP depth.</span></div>
+      <div class="roast-block"><span class="ic">🔍</span><span><b>Invisible cost:</b> Every generic or off-target skill in your top 5-10 is a slot NOT occupied by "Disaster Recovery Planning" or "Business Continuity Planning" — the exact phrases a Director/BCP-focused search would use.</span></div>
+    </div>
+  </div>
+
+  <div class="card" style="background:var(--navy); color:#fff; text-align:center;">
+    <div style="font-size:12px; letter-spacing:0.6px; text-transform:uppercase; color:#c9b98a; font-weight:700; margin-bottom:6px;">Overall Profile Strength</div>
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:34px; font-weight:700;">70 / 100</div>
+  </div>
+</section>
+
+<!-- ============ REBUILD ============ -->
+<section class="panel" id="rebuild">
+  <div class="panel-head">
+    <h2>Part 2 — The Rebuild</h2>
+    <p>Every rewrite below uses only what you gave me — no invented achievements, numbers, or roles. Where a number is missing, I've flagged it instead of making one up.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:15.5px; margin-bottom:4px;">Headline — 3 options</h3>
+    <p style="font-size:12.5px; color:var(--ink-dim); margin:0 0 16px;">Formula: [Role/Identity] | [Who I Help or What I Do] | [Proof or Differentiator]</p>
+
+    <div class="option-card">
+      <div class="tag">Option 1 · Keyword-optimized (for search visibility)</div>
+      <div class="headline-text" id="hl1">Senior Manager | Cyber Resilience &amp; Disaster Recovery (BCP/DR) | Azure Cloud Infrastructure | HIPAA &amp; ISO 27001 | FinOps | 17+ Yrs</div>
+      <div class="when">Use this when you're actively job-hunting. It maximizes the odds you surface in a recruiter's Boolean search for "Disaster Recovery," "BCP," "Azure," or "ISO 27001" — search visibility over storytelling.</div>
+      <button class="copy-btn" data-copy="hl1">📋 Copy</button>
+    </div>
+
+    <div class="option-card">
+      <div class="tag">Option 2 · Value-proposition (for attracting opportunities)</div>
+      <div class="headline-text" id="hl2">I Design the Recovery Plan Before Disaster Strikes | Cyber-Resilient, Zero-Downtime Infrastructure Leader | Azure · FinOps | 17 Yrs</div>
+      <div class="when">Use this once people are already landing on your profile (from posts, mutual connections, InMail) and you want the value to land instantly, not just the keywords.</div>
+      <button class="copy-btn" data-copy="hl2">📋 Copy</button>
+    </div>
+
+    <div class="option-card">
+      <div class="tag">Option 3 · Authority (for thought leadership)</div>
+      <div class="headline-text" id="hl3">Director-Track Infrastructure Leader | Building Zero-Downtime, Cyber-Resilient Enterprises on Azure | BCP/DR &amp; FinOps | 17 Yrs</div>
+      <div class="when">Use this once you're actively posting content in the DR/BCP/cyber-resilience space — it signals the aspiration and the niche authority you're building toward.</div>
+      <button class="copy-btn" data-copy="hl3">📋 Copy</button>
+    </div>
+
+    <div class="reaction" style="margin-top:4px;">Given your goal mix (Director/VP first, thought leadership close behind), I'd start with <b>Option 1</b> for search visibility, and switch to <b>Option 3</b> once Day 2 and Day 5 posts (below) are live and you're building a content cadence. I also dropped "AI Enthusiast | Claude Learner" from all three headline options — not because it's not real, but because a Director-level headline has very few characters to work with, and every one of them should be pulling search or seniority weight. It fits better as a line inside your About or a future post, not competing with "Disaster Recovery" for headline space.</div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:15.5px; margin-bottom:14px;">About Section — full rewrite</h3>
+    <div class="about-block hook">
+      <div class="lbl">Hook (lines 1-2 — kept as-is, it already works)</div>
+      <p>When critical infrastructure fails at 2 AM, organisations need someone who already built the recovery plan. That's what I do.</p>
+    </div>
+    <div class="about-block story">
+      <div class="lbl">Story (lines 3-5)</div>
+      <p>Over 17 years, I've architected and led cyber-resilient, zero-downtime infrastructure across Azure, hybrid cloud, and on-prem environments — spanning backup &amp; disaster recovery, FinOps, HIPAA/ISO 27001 compliance, and large-scale data centre migrations. I help enterprises turn infrastructure risk into infrastructure reliability.</p>
+    </div>
+    <div class="about-block proof">
+      <div class="lbl">Proof (lines 6-8 — your real wins, lightly tightened)</div>
+      <p>→ Architected Commvault + Azure DR solution for SAP HANA — 100% recovery SLA, zero data loss
+→ Led data centre migration (Gigaplex → Equinix) with zero application downtime
+→ Reduced MTTR by 20% through observability frameworks and SRE-led incident management
+→ Delivered SAP HANA migration recognised with ST's Strategic Gold Award (2022)
+
+Currently Senior Manager at Capgemini, leading cross-functional teams across Azure architecture, vendor management, FinOps, and risk &amp; compliance.</p>
+    </div>
+    <div class="about-block cta">
+      <div class="lbl">CTA (last line — strengthened)</div>
+      <p id="aboutCta">I'm actively exploring Director / VP of Infrastructure opportunities where I can own the full technology resilience mandate — if that's you, or if you just want to talk cyber-resilience, DR strategy, or Azure FinOps, let's connect: yuvraj.tank@gmail.com</p>
+    </div>
+    <button class="copy-btn" id="copyAboutBtn">📋 Copy full About section</button>
+    <div class="keyword-chips" id="keywordChips"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:15.5px; margin-bottom:14px;">Experience — Top Entry rewrite</h3>
+
+    <div class="bullet-compare">
+      <div class="b-lbl" style="color:var(--red);">Bullet 1 — Before</div>
+      <div class="b-before">Reduced infrastructure operating costs by leading a FinOps programme across Azure workloads, achieving price optimisation targets for a multi-million-pound client account.</div>
+      <div class="b-lbl" style="color:var(--green);">After</div>
+      <div class="b-after">Led a FinOps programme across Azure workloads for a multi-million-pound client account — reducing infrastructure operating costs and hitting every price optimisation target set for the engagement.</div>
+      <div class="b-note">⚠️ If you have the actual % or £ saved, add it here — that single number would likely move this bullet from an 8 to a 10. I haven't invented one.</div>
+    </div>
+
+    <div class="bullet-compare">
+      <div class="b-lbl" style="color:var(--red);">Bullet 2 — Before</div>
+      <div class="b-before">Ensured 99.9%+ SLA compliance by architecting cyber-resilient backup and DR frameworks aligned to HIPAA and ISO 27001 standards across hybrid cloud environments.</div>
+      <div class="b-lbl" style="color:var(--green);">After</div>
+      <div class="b-after">Architected cyber-resilient backup and disaster recovery frameworks aligned to HIPAA and ISO 27001 across hybrid cloud environments — sustaining 99.9%+ SLA compliance.</div>
+      <div class="b-note">Same facts, reordered: lead with the action (architected), land the number at the end where it hits hardest.</div>
+    </div>
+
+    <div class="bullet-compare">
+      <div class="b-lbl" style="color:var(--red);">Bullet 3 — Before</div>
+      <div class="b-before">Scaled team performance by leading and mentoring a 12-member cross-functional infrastructure team, driving structured performance reporting, SLA governance, and vendor management across a critical enterprise account.</div>
+      <div class="b-lbl" style="color:var(--green);">After</div>
+      <div class="b-after">Lead and mentor a 12-member cross-functional infrastructure team on a critical enterprise account, driving structured performance reporting, SLA governance, and vendor management.</div>
+      <div class="b-note">⚠️ Cut "scaled team performance" — it's an unsupported claim. If you have a real metric behind it (attrition drop, SLA adherence improvement, faster onboarding), that's the number to add back in — don't leave the adjective standing alone.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:15.5px; margin-bottom:14px;">Skills Recommendations</h3>
+    <div class="skills-cols">
+      <div>
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; font-weight:800; color:var(--green); margin-bottom:8px;">Add (priority order)</div>
+        <div id="skillsAddList"></div>
+      </div>
+      <div>
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; font-weight:800; color:var(--red); margin-bottom:8px;">Remove</div>
+        <div class="skill-remove"><b>Claude</b><p>Real and worth keeping visible — but as a top-tier Skill it competes with your DR/BCP/Azure keywords. Move it into your About or a future post instead.</p></div>
+        <div class="skill-remove"><b>Architect</b><p>That's a role, not a searchable skill. Recruiters search competencies, not titles — "Cloud Infrastructure Architecture" does the same job and gets matched.</p></div>
+        <div class="skill-remove"><b>Storage</b><p>Too generic to signal DR/BCP depth on its own. Fold it into "Data Protection & Storage Architecture" or drop it in favor of a more specific term.</p></div>
+      </div>
+    </div>
+    <div class="pin-row"><b>Pin to top 3:</b> Disaster Recovery Planning · Business Continuity Planning (BCP) · Azure Cloud Infrastructure — these are the exact terms a Director/VP + BCP/DR search will use first.</div>
+  </div>
+</section>
+
+<!-- ============ SCORECARD ============ -->
+<section class="panel" id="scorecard">
+  <div class="panel-head">
+    <h2>Part 3 — Before vs After Scorecard</h2>
+    <p>Same five sections, scored again after the rebuild.</p>
+  </div>
+  <div class="overall-hero">
+    <div class="oc before"><div class="n">70</div><div class="l">Overall Before</div></div>
+    <div class="arrow">→</div>
+    <div class="oc after"><div class="n">90</div><div class="l">Overall After</div></div>
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:15px; color:#8fe0bb; font-weight:700;">+20</div>
+  </div>
+  <div class="card" id="scorecardCard"></div>
+</section>
+
+<!-- ============ 7-DAY PLAN ============ -->
+<section class="panel" id="plan">
+  <div class="panel-head">
+    <h2>Part 4 — 7-Day LinkedIn Activation Plan</h2>
+    <p>Profile edits alone don't move the needle — these are the actions that get your rebuilt profile in front of people. Tap each day to expand.</p>
+  </div>
+  <div id="planWrap"></div>
+</section>
+
+<!-- ============ SUMMARY CARD ============ -->
+<section class="panel" id="summary">
+  <div class="panel-head">
+    <h2>Part 5 — What I Learned Today</h2>
+    <p>Ready to screenshot and post. This is your proof-of-work.</p>
+  </div>
+  <div class="summary-card">
+    <div class="sc-eyebrow">Personal Branding Audit</div>
+    <h3>I let AI roast my LinkedIn profile today. Here's what changed:</h3>
+    <div class="summary-scores">
+      <div class="before"><div class="n">70</div><div class="l">Before</div></div>
+      <div style="color:#c9b98a; font-size:20px;">→</div>
+      <div class="after"><div class="n">90</div><div class="l">After</div></div>
+    </div>
+    <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:#c9b98a; font-weight:700; margin-bottom:8px;">Top 3 mistakes I was making</div>
+    <ol class="summary-mistakes">
+      <li>My headline buried my strongest line — "17 years building zero-downtime enterprises" — at the end, under a pile of keywords with a typo.</li>
+      <li>My About section's CTA was just an email address, with no clear ask.</li>
+      <li>My skills list had generic, thin entries (Storage, Architect, Claude) instead of the specific Director/BCP/DR terms recruiters actually search.</li>
+    </ol>
+    <div class="summary-highlight"><b>The #1 thing that made the biggest difference:</b> Rewriting my headline to lead with Director-level positioning and searchable DR/BCP/Azure keywords instead of a diluted 10-item list.</div>
+  </div>
+  <div class="summary-actions"><button class="copy-btn" id="copySummaryBtn">📋 Copy summary text</button></div>
+</section>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+const $ = id => document.getElementById(id);
+
+/* ---- tabs ---- */
+const tabs = [...document.querySelectorAll('.tab-btn')];
+const panels = { roast:$('roast'), rebuild:$('rebuild'), scorecard:$('scorecard'), plan:$('plan'), summary:$('summary') };
+tabs.forEach(t=>{
+  t.addEventListener('click', ()=>{
+    tabs.forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    panels[t.dataset.target].scrollIntoView({behavior:'smooth', block:'start'});
+  });
+});
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      tabs.forEach(t=> t.classList.toggle('active', t.dataset.target===e.target.id));
+    }
+  });
+}, {rootMargin:'-40% 0px -55% 0px'});
+Object.values(panels).forEach(p=> io.observe(p));
+
+/* ---- toast ---- */
+let toastTimer=null;
+function showToast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2400); }
+
+/* ---- copy buttons ---- */
+function copyText(text, btn){
+  const done = ()=>{
+    showToast('Copied to clipboard');
+    if(btn){ const orig=btn.textContent; btn.textContent='✓ Copied'; btn.classList.add('copied'); setTimeout(()=>{ btn.textContent=orig; btn.classList.remove('copied'); },1500); }
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else fallbackCopy(text,done);
+}
+function fallbackCopy(text, cb){
+  const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); cb(); }catch(e){ showToast('Copy failed — please select and copy manually'); }
+  document.body.removeChild(ta);
+}
+document.querySelectorAll('.copy-btn[data-copy]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{ copyText($(btn.dataset.copy).textContent, btn); });
+});
+$('copyAboutBtn').addEventListener('click', ()=>{
+  const parts = [...document.querySelectorAll('#rebuild .about-block p')].map(p=>p.textContent.trim());
+  copyText(parts.join('\\n\\n'), $('copyAboutBtn'));
+});
+$('copySummaryBtn').addEventListener('click', ()=>{
+  const text = "I let AI roast my LinkedIn profile today. Here's what changed:\\n\\nBefore: 70/100\\nAfter: 90/100\\n\\nTop 3 mistakes I was making:\\n1. My headline buried my strongest line (17 years building zero-downtime enterprises) at the end, under a pile of keywords with a typo.\\n2. My About section's CTA was just an email address — no clear ask.\\n3. My skills list had generic entries (Storage, Architect, Claude) instead of the specific Director/BCP/DR keywords recruiters actually search.\\n\\nThe #1 thing that made the biggest difference: Rewriting my headline to lead with Director-level positioning and searchable DR/BCP/Azure keywords instead of a diluted list.";
+  copyText(text, $('copySummaryBtn'));
+});
+
+/* ---- keyword chips ---- */
+const KEYWORDS = ['Cyber-Resilient Infrastructure','Zero-Downtime','Azure','Hybrid Cloud','Backup & Disaster Recovery','FinOps','HIPAA','ISO 27001','Data Centre Migration','SAP HANA','Commvault','SRE','Incident Management','Director of Infrastructure','VP of Infrastructure','Risk & Compliance','Vendor Management'];
+$('keywordChips').innerHTML = '<div style="width:100%;font-size:10.5px;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-faint);font-weight:700;margin-bottom:4px;">Keywords embedded for search</div>' + KEYWORDS.map(k=>`<span class="chip">${k}</span>`).join('');
+
+/* ---- skills add list ---- */
+const SKILLS_ADD = ['Disaster Recovery Planning','Business Continuity Planning','IT Service Continuity Management','Cloud Infrastructure Architecture','Enterprise Risk Management','ISO 27001','IT Governance','Vendor Management','FinOps / Cloud Cost Optimization','People Management & Team Leadership'];
+$('skillsAddList').innerHTML = SKILLS_ADD.map((s,i)=>`<div class="skill-add"><span class="num">${String(i+1).padStart(2,'0')}</span><span>${s}</span></div>`).join('');
+
+/* ---- scorecard bars ---- */
+const SCORES = [
+  {label:'Headline', before:6, after:9},
+  {label:'About (Hook)', before:9, after:9},
+  {label:'About (Full)', before:8, after:9},
+  {label:'Experience', before:7, after:9},
+  {label:'Skills / Keywords', before:5, after:9}
+];
+const scEl = $('scorecardCard');
+scEl.innerHTML = SCORES.map(s=>{
+  const delta = s.after-s.before;
+  return `<div class="scorebar-row">
+    <div class="sr-head"><span>${s.label}</span><span>${s.before}/10 → ${s.after}/10 <span class="delta">(${delta>0?'+':''}${delta})</span></span></div>
+    <div class="scorebar-track">
+      <div class="scorebar-fill before-fill" style="width:${s.before*10}%"></div>
+      <div class="scorebar-fill after-fill" style="width:${s.after*10}%; opacity:0.85;"></div>
+    </div>
+  </div>`;
+}).join('');
+
+/* ---- 7-day plan ---- */
+const CHECKLIST_KEY = 'linkedin_audit_checklist';
+function loadChecklist(){ try{ return JSON.parse(localStorage.getItem(CHECKLIST_KEY))||{}; }catch(e){ return {}; } }
+function saveChecklist(state){ try{ localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state)); }catch(e){} }
+const checklistState = loadChecklist();
+
+const POST1 = "I just rebuilt my LinkedIn profile — and it made me realize how much I was underselling 17 years of work.\\n\\nMy old headline was a keyword dump. My skills list had generic entries doing no work for me. My About section's call-to-action? Just an email address.\\n\\nSo I rewrote it. Same real experience — architecting cyber-resilient DR for SAP HANA, leading a zero-downtime data centre migration, running FinOps across Azure workloads for a multi-million-pound account — just packaged the way it should have been from day one.\\n\\nIf you're a Technical Manager or Senior Manager sitting on strong work but a thin profile: the gap probably isn't your experience. It's how you're telling the story.\\n\\nWhat's one line on your profile you know you should have rewritten months ago?";
+
+const CONNECT_TEMPLATE = "Hi [Name] — I lead cyber-resilient infrastructure & DR at Capgemini and I'm exploring Director/VP Infrastructure roles. Would love to connect and follow your work in [their space].";
+
+const POST2 = "Hot take after 17 years building disaster recovery for enterprise infrastructure:\\n\\nMost DR plans fail not because the architecture is wrong, but because nobody rehearses the 2 AM version of the plan — tired, under pressure, key people unreachable.\\n\\nWe architected a Commvault + Azure DR solution for SAP HANA with a 100% recovery SLA and zero data loss. The technology mattered. The runbook rehearsal mattered just as much.\\n\\nIf your DR strategy has never been stress-tested outside business hours, it's not tested.\\n\\nWhat's the most \\"obvious in hindsight\\" gap you've found in a DR plan?";
+
+const PLAN = [
+  {
+    title:'Make all profile changes',
+    body: `<p>Work through this checklist in order — each change builds on the last.</p>
+    <div class="checklist-item"><input type="checkbox" id="d1a"><label for="d1a">Replace headline with Option 1 (keyword-optimized)</label></div>
+    <div class="checklist-item"><input type="checkbox" id="d1b"><label for="d1b">Replace About section with the rebuilt Hook + Story + Proof + CTA version</label></div>
+    <div class="checklist-item"><input type="checkbox" id="d1c"><label for="d1c">Update your 3 Experience bullets to the "After" versions</label></div>
+    <div class="checklist-item"><input type="checkbox" id="d1d"><label for="d1d">Add the 10 recommended skills, prioritizing the top 3 to pin</label></div>
+    <div class="checklist-item"><input type="checkbox" id="d1e"><label for="d1e">Remove "Storage," "Architect," and "Claude" from your top skills</label></div>
+    <div class="checklist-item"><input type="checkbox" id="d1f"><label for="d1f">Pin Disaster Recovery Planning, BCP, and Azure Cloud Infrastructure to the top</label></div>`
+  },
+  {
+    title:'Publish Post #1 — "I just rebuilt my LinkedIn"',
+    body: `<p>Post this today. It's under 1,300 characters and ends on a question to drive comments — reply to every single one.</p>
+    <div class="draft-box" id="post1Text">${POST1}</div>
+    <button class="copy-btn" data-copy="post1Text">📋 Copy post</button>`
+  },
+  {
+    title:'Send 10 strategic connection requests',
+    body: `<p><b>Who to target:</b></p>
+    <ul class="target-list">
+      <li>Directors/VPs of Infrastructure at companies similar to (or above) Capgemini's scale — your direct peer/aspirational tier</li>
+      <li>CIOs, CTOs, and Heads of Cyber Resilience at mid-to-large enterprises</li>
+      <li>Recruiters who specialize in infrastructure, cloud, or cyber-resilience leadership roles</li>
+      <li>Fellow practitioners active in the DR/BCP community (people who post or comment on DR/BCP content)</li>
+      <li>Capgemini alumni now in Director+ infrastructure roles elsewhere</li>
+    </ul>
+    <p><b>Connection message (under 300 characters):</b></p>
+    <div class="draft-box" id="connectText">${CONNECT_TEMPLATE}</div>
+    <button class="copy-btn" data-copy="connectText">📋 Copy template</button>
+    <p style="margin-top:8px;">Swap in their name and space before sending each one — a templated-looking message with no personalization gets ignored.</p>`
+  },
+  {
+    title:'Comment on 5 posts in your target space',
+    body: `<p>Use the <b>Value Comment</b> formula on posts from people in DR/BCP, cyber-resilience, or Azure infrastructure:</p>
+    <div class="formula-box"><b>Agree</b> — state a specific point you genuinely agree with, not just "Great post!"<br><b>Add Insight</b> — bring one thing from your own 17 years of experience that builds on their point.<br><b>Ask a Question</b> — end with a genuine question that invites them (and others) to reply to you.</div>
+    <p><b>Example, applied to your domain:</b> "Completely agree on rehearsal cadence. We found the same gap running Commvault + Azure DR for SAP HANA — the architecture was solid, but the first real test happened outside business hours and exposed timing assumptions the runbook missed. Curious — how often does your team rehearse outside the 9-5 window?"</p>`
+  },
+  {
+    title:'Publish Post #2 — a lessons-learned / hot-take',
+    body: `<p>A stronger, more opinionated post now that Post #1 has warmed up your network.</p>
+    <div class="draft-box" id="post2Text">${POST2}</div>
+    <button class="copy-btn" data-copy="post2Text">📋 Copy post</button>`
+  },
+  {
+    title:'Engage with every comment + 5 more connection requests',
+    body: `<p>Reply to every comment on both posts — even a short reply keeps you in the algorithm's "active conversation" signal and shows up in more feeds. Then repeat Day 3's targeting for 5 more strategic connections, this time prioritizing anyone who engaged with your posts.</p>
+    <div class="checklist-item"><input type="checkbox" id="d6a"><label for="d6a">Replied to every comment on Post #1</label></div>
+    <div class="checklist-item"><input type="checkbox" id="d6b"><label for="d6b">Replied to every comment on Post #2</label></div>
+    <div class="checklist-item"><input type="checkbox" id="d6c"><label for="d6c">Sent 5 more connection requests, prioritizing people who engaged</label></div>`
+  },
+  {
+    title:'Review profile views &amp; connection acceptance rate',
+    body: `<p><b>What the numbers mean:</b></p>
+    <ul class="target-list">
+      <li><b>Profile views spiking</b> after your posts = your content is driving discovery. Good — keep the cadence going.</li>
+      <li><b>Low connection acceptance rate (under ~30%)</b> = your requests aren't personalized enough, or you're targeting people too senior/unrelated to have a reason to accept.</li>
+      <li><b>High acceptance but no replies to messages</b> = your profile earns trust but your outreach message isn't giving them a clear, low-effort next step.</li>
+      <li><b>Search appearances up</b> = the new headline and skills are working — recruiters are finding you for the right terms.</li>
+    </ul>
+    <p><b>What to adjust:</b> If acceptance is low, narrow your targeting to people with a genuine shared thread (same industry, mutual connections, engaged with your content). If views are up but messages aren't converting, tighten your connection message to reference something specific about them.</p>`
+  }
+];
+
+const planWrap = $('planWrap');
+PLAN.forEach((day,i)=>{
+  const item = document.createElement('div'); item.className='day-item';
+  item.innerHTML = `<button class="day-head"><span class="day-num">D${i+1}</span><span class="day-title">${day.title}</span><span class="chev">▶</span></button>
+    <div class="day-body">${day.body}</div>`;
+  item.querySelector('.day-head').addEventListener('click', ()=> item.classList.toggle('open'));
+  planWrap.appendChild(item);
+});
+planWrap.querySelectorAll('.copy-btn[data-copy]').forEach(btn=>{
+  btn.addEventListener('click', ()=> copyText($(btn.dataset.copy).textContent, btn));
+});
+planWrap.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(cb=>{
+  cb.checked = !!checklistState[cb.id];
+  cb.closest('.checklist-item').classList.toggle('done', cb.checked);
+  cb.addEventListener('change', ()=>{
+    checklistState[cb.id] = cb.checked;
+    saveChecklist(checklistState);
+    cb.closest('.checklist-item').classList.toggle('done', cb.checked);
+  });
+});
+if(PLAN.length) planWrap.children[0].classList.add('open');
+
+})();
+</script>
+</body>
+</html>
