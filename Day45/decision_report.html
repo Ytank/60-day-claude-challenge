@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Decision Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-main:#0f0f14;--bg-card:#1a1a24;--bg-card-alt:#1e1e2e;
+  --text-primary:#f0f0f5;--text-secondary:#8888a0;
+  --accent-green:#34d399;--accent-red:#f87171;--accent-blue:#60a5fa;
+  --accent-gold:#fbbf24;--accent-purple:#a78bfa;--border-subtle:rgba(255,255,255,0.06);
+}
+*{box-sizing:border-box;}
+body{background:var(--bg-main);color:var(--text-primary);font-family:'Inter','Segoe UI',system-ui,sans-serif;margin:0;padding:40px 16px;scroll-behavior:smooth;}
+.wrap{max-width:720px;margin:0 auto;}
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:16px;padding:28px;margin-bottom:28px;box-shadow:0 4px 24px rgba(0,0,0,0.3);transition:transform .2s;border-left:4px solid var(--accent-blue);}
+.card:hover{transform:translateY(-2px);}
+.card h2{font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 16px;}
+.card p{font-size:15px;line-height:1.7;margin:0 0 10px;}
+.label{font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;margin-bottom:4px;}
+.s1{border-left-color:var(--accent-blue);}
+.s1 h2{color:var(--accent-blue);}
+.s2{border-left-color:var(--accent-green);}
+.s2 h2{color:var(--accent-green);}
+.optioncard{background:var(--bg-card-alt);border-radius:12px;padding:18px;margin-bottom:14px;}
+.optioncard h3{margin:0 0 8px;font-size:16px;}
+.s3{border-left-color:var(--accent-purple);}
+.s3 h2{color:var(--accent-purple);}
+.s4{border-left-color:var(--accent-blue);}
+.s4 h2{color:var(--accent-blue);}
+.row{display:flex;align-items:center;margin-bottom:10px;}
+.rlabel{width:40%;font-size:13px;color:var(--text-secondary);}
+.barwrap{width:60%;height:28px;background:rgba(255,255,255,0.05);border-radius:8px;overflow:hidden;position:relative;}
+.bar{height:100%;border-radius:8px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:#fff;font-weight:700;font-size:13px;animation:grow .8s ease-out forwards;transform-origin:left;}
+@keyframes grow{from{width:0;}to{width:var(--w);}}
+.barA{background:linear-gradient(90deg,#60a5fa,#3b82f6);}
+.barB{background:linear-gradient(90deg,#34d399,#10b981);}
+.total{font-weight:800;font-size:16px;background:rgba(255,255,255,0.04);border-radius:8px;padding:10px 12px;margin-top:6px;}
+.s5{border-left-color:var(--accent-red);}
+.s5 h2{color:var(--accent-red);}
+.s6{border-left-color:var(--accent-green);}
+.s6 h2{color:var(--accent-green);}
+.day{margin-bottom:8px;font-size:15px;}
+.day b{color:var(--accent-green);}
+.s7{border-left-color:var(--accent-gold);background:var(--bg-card-alt);padding:32px;box-shadow:0 0 20px rgba(251,191,36,0.15);}
+.s7 h2{color:var(--accent-gold);}
+.verdict-name{font-size:30px;font-weight:800;color:var(--accent-gold);margin:0 0 12px;}
+.hardtruth{font-style:italic;color:var(--text-secondary);margin-top:14px;}
+.s8{border-left-color:var(--accent-gold);}
+.s8 h2{color:var(--accent-gold);}
+.minirow{display:flex;gap:14px;flex-wrap:wrap;}
+.mini{background:var(--bg-card-alt);border-radius:12px;padding:16px;flex:1 1 200px;min-width:180px;}
+.mini .wm{font-size:10px;color:var(--text-secondary);margin-top:10px;text-align:right;}
+.header{text-align:center;margin-bottom:32px;}
+.header h1{font-size:28px;font-weight:800;margin:0;}
+.header p{color:var(--text-secondary);font-size:16px;margin:6px 0 0;}
+.header .date{font-size:12px;color:var(--text-secondary);margin-top:4px;}
+.gradline{height:2px;background:linear-gradient(90deg,var(--accent-blue),var(--accent-purple),var(--accent-gold));margin:20px 0 0;border-radius:2px;}
+footer{text-align:center;color:var(--text-secondary);font-size:12px;margin-top:40px;}
+@media(max-width:600px){.card{padding:16px;}.row{flex-direction:column;align-items:flex-start;}.rlabel,.barwrap{width:100%;}.minirow{flex-direction:column;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>DECISION REPORT</h1>
+    <p>Pursue a core cybersecurity role now vs. fallback into teaching cybersecurity</p>
+    <div class="date">July 17, 2026</div>
+    <div class="gradline"></div>
+  </div>
+
+  <div class="card s1">
+    <h2>The real decision</h2>
+    <p>You're deciding whether to keep pushing to land a core cybersecurity role right now, or accept your current roadblocks and pivot to teaching cybersecurity to students as Plan B.</p>
+    <p>The real trade-off: a 3-month notice period and limited practical experience are slowing your job search, while teaching is more immediately available but moves you away from your CISO goal.</p>
+    <p>It's hard because your gut already picked Option A, but the obstacles are real and haven't gone away just because you're sure it will work out.</p>
+  </div>
+
+  <div class="card s2">
+    <h2>The case for each option</h2>
+    <div class="optioncard">
+      <h3 style="color:var(--accent-blue);">Option A — Land a core cybersecurity role now</h3>
+      <p><b>Strongest case:</b> It's the direct path toward your long-term goal of becoming a CISO at a major bank in Dubai or Switzerland. Every year in a core role compounds toward that.</p>
+      <p><b>Hidden upside:</b> Even a modest entry role gives you the practical experience you say you're currently lacking — the very thing blocking you.</p>
+      <p><b>Biggest weakness:</b> The 3-month notice period and thin hands-on experience make you a harder sell against candidates who can start sooner or show more field work.</p>
+      <p><b>Best if you value:</b> long-term career trajectory over short-term ease.</p>
+    </div>
+    <div class="optioncard">
+      <h3 style="color:var(--accent-green);">Option B — Teach cybersecurity to students</h3>
+      <p><b>Strongest case:</b> It's accessible now and keeps you inside the cybersecurity field while you figure out the job search.</p>
+      <p><b>Hidden upside:</b> Teaching forces you to deepen and organize your own technical knowledge — which could directly patch your "lack of practical knowledge" gap.</p>
+      <p><b>Biggest weakness:</b> It doesn't build the operational, hands-on security experience that hiring managers — or a future CISO track — actually require.</p>
+      <p><b>Best if you value:</b> stability and staying engaged in the field over speed toward the CISO goal.</p>
+    </div>
+  </div>
+
+  <div class="card s3">
+    <h2>Assumption buster</h2>
+    <p><b>Assumptions you may be making:</b></p>
+    <p>1. That "it will work out" is a plan rather than a hope — you haven't named what specifically resolves the notice period or experience gap.</p>
+    <p>2. That teaching is purely a fallback, when it could also be reframed as leverage (visibility, credibility) rather than retreat.</p>
+    <p>3. That a good company will overlook a 3-month notice period without you needing to change how you're positioning yourself.</p>
+    <p><b>Biases at play:</b> Optimism bias (assuming the outcome without a concrete plan) and status quo bias (staying in your current role/track because it's familiar, despite the roadblocks).</p>
+    <p><b>What you're definitely ignoring:</b> The practical-knowledge gap won't close itself just by waiting for an offer — it needs an active plan regardless of which option you pick.</p>
+  </div>
+
+  <div class="card s4">
+    <h2>Decision matrix</h2>
+    <div class="row"><div class="rlabel">Life/career upside</div><div class="barwrap"><div class="bar barA" style="--w:90%">9</div></div></div>
+    <div class="row"><div class="rlabel">Financial safety</div><div class="barwrap"><div class="bar barA" style="--w:50%">5</div></div></div>
+    <div class="row"><div class="rlabel">Growth & learning</div><div class="barwrap"><div class="bar barA" style="--w:80%">8</div></div></div>
+    <div class="row"><div class="rlabel">Stress level (10=low)</div><div class="barwrap"><div class="bar barA" style="--w:40%">4</div></div></div>
+    <div class="row"><div class="rlabel">Reversibility</div><div class="barwrap"><div class="bar barA" style="--w:40%">4</div></div></div>
+    <div class="row"><div class="rlabel">Long-term alignment</div><div class="barwrap"><div class="bar barA" style="--w:100%">10</div></div></div>
+    <div class="row"><div class="rlabel">Regret risk (10=low)</div><div class="barwrap"><div class="bar barA" style="--w:50%">5</div></div></div>
+    <div class="total" style="color:var(--accent-blue);">Option A total: 45 / 70</div>
+    <div style="height:16px;"></div>
+    <div class="row"><div class="rlabel">Life/career upside</div><div class="barwrap"><div class="bar barB" style="--w:50%">5</div></div></div>
+    <div class="row"><div class="rlabel">Financial safety</div><div class="barwrap"><div class="bar barB" style="--w:60%">6</div></div></div>
+    <div class="row"><div class="rlabel">Growth & learning</div><div class="barwrap"><div class="bar barB" style="--w:60%">6</div></div></div>
+    <div class="row"><div class="rlabel">Stress level (10=low)</div><div class="barwrap"><div class="bar barB" style="--w:70%">7</div></div></div>
+    <div class="row"><div class="rlabel">Reversibility</div><div class="barwrap"><div class="bar barB" style="--w:80%">8</div></div></div>
+    <div class="row"><div class="rlabel">Long-term alignment</div><div class="barwrap"><div class="bar barB" style="--w:40%">4</div></div></div>
+    <div class="row"><div class="rlabel">Regret risk (10=low)</div><div class="barwrap"><div class="bar barB" style="--w:50%">5</div></div></div>
+    <div class="total" style="color:var(--accent-green);">Option B total: 41 / 70</div>
+  </div>
+
+  <div class="card s5">
+    <h2>Premortem</h2>
+    <p><b>Option A failed after 12 months, because:</b></p>
+    <p>1. The 3-month notice period kept losing you roles to faster-moving candidates. 2. You never closed the practical-knowledge gap before interviews. 3. You held out too long without adjusting your approach.</p>
+    <p><b>Early warning sign:</b> Multiple interview rejections citing "hands-on experience" as the reason.</p>
+    <p><b>Prevention action:</b> Start building demonstrable hands-on experience now, in parallel with applying.</p>
+    <p><b>Option B failed after 12 months, because:</b></p>
+    <p>1. Teaching pulled you further from the technical, operational work hiring managers want. 2. It quietly became permanent rather than a bridge. 3. Your CISO timeline slipped without you noticing.</p>
+    <p><b>Early warning sign:</b> You stop actively applying for core roles altogether.</p>
+    <p><b>Prevention action:</b> Set a fixed review date to reassess whether teaching is still "Plan B" or has become the default.</p>
+  </div>
+
+  <div class="card s6">
+    <h2>7-day test plan</h2>
+    <div class="day"><b>Day 1-2:</b> Research 5 companies actively hiring core security roles and note their stance on notice periods.</div>
+    <div class="day"><b>Day 3-4:</b> Complete one small hands-on project (lab, CTF, or cert exercise) to start closing the practical-knowledge gap.</div>
+    <div class="day"><b>Day 5-6:</b> Have one direct conversation with a recruiter or hiring manager about how they view your notice period and experience level.</div>
+    <div class="day"><b>Day 7:</b> Decide: if you have at least one warm lead or clear feedback path, keep pushing Option A; if not, seriously activate Option B in parallel.</div>
+  </div>
+
+  <div class="card s7">
+    <h2>The verdict</h2>
+    <p class="verdict-name">Option A — Pursue the core cybersecurity role</p>
+    <p>It scores higher overall and is the only path directly aligned with your CISO goal. Your gut is right — but "it will work out" needs to become a concrete plan to close the experience gap.</p>
+    <p><b>What could flip it:</b> If 60-90 days pass with no traction despite real effort, Option B becomes the smarter move, not a defeat.</p>
+    <p class="hardtruth">Confidence isn't a substitute for a plan — you still have to close the experience gap yourself.</p>
+  </div>
+
+  <div class="card s8">
+    <h2>Shareable cards</h2>
+    <div class="minirow">
+      <div class="mini">
+        <div class="label">Matrix summary</div>
+        <p style="margin:6px 0;">Option A: <b style="color:var(--accent-blue);">45/70</b></p>
+        <p style="margin:6px 0;">Option B: <b style="color:var(--accent-green);">41/70</b></p>
+        <div class="wm">Built with Claude AI</div>
+      </div>
+      <div class="mini">
+        <div class="label">Verdict</div>
+        <p style="margin:6px 0;color:var(--accent-gold);font-weight:700;">Go for the core role</p>
+        <p style="margin:6px 0;font-size:13px;color:var(--text-secondary);">It's the only path aligned with your CISO goal.</p>
+        <div class="wm">Built with Claude AI</div>
+      </div>
+      <div class="mini">
+        <div class="label">Hook</div>
+        <p style="margin:6px 0;font-weight:600;">Stuck on a career decision?</p>
+        <p style="margin:6px 0;font-size:13px;color:var(--text-secondary);">Score your options. Bust your assumptions. Decide with data, not just gut.</p>
+        <p style="margin:6px 0;font-size:13px;color:var(--accent-blue);">Try it yourself →</p>
+        <div class="wm">Built with Claude AI</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Built with Claude AI | ABTalks 60-Day Challenge</footer>
+</div>
+</body>
+</html>
