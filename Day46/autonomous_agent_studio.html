@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autonomous Agent Studio — Mock Interview Coach</title>
+<style>
+:root{
+  --bg:#0b0d12;--panel:#12151d;--panel2:#181c26;--border:#242938;
+  --text:#eef0f6;--text2:#9aa3b8;--text3:#5f6780;
+  --blue:#5b9dff;--green:#3ddc97;--gold:#ffc857;--red:#ff6b6b;--purple:#b18cff;--cyan:#4dd6e0;
+  --radius:14px;
+}
+[data-theme="light"]{
+  --bg:#f4f5f9;--panel:#ffffff;--panel2:#f0f1f6;--border:#e1e4ee;
+  --text:#161a24;--text2:#565f75;--text3:#8890a3;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,sans-serif;transition:background .3s,color .3s;}
+.app{max-width:1280px;margin:0 auto;padding:24px 20px 60px;}
+header.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+header.top h1{font-size:22px;margin:0;font-weight:800;}
+header.top .sub{color:var(--text2);font-size:13px;margin-top:4px;}
+.themebtn{background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:13px;}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;}
+.card h2{font-size:15px;text-transform:uppercase;letter-spacing:.5px;margin:0 0 14px;color:var(--text2);font-weight:700;}
+label{font-size:13px;color:var(--text2);display:block;margin-bottom:6px;margin-top:14px;}
+input[type=text],input[type=number],textarea{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px;font-size:14px;font-family:inherit;}
+textarea{min-height:70px;resize:vertical;}
+.row{display:flex;gap:16px;flex-wrap:wrap;}
+.row>div{flex:1;min-width:200px;}
+.btn{background:var(--blue);color:#fff;border:none;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s;}
+.btn:hover{opacity:.9;}
+.btn:active{transform:scale(.98);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border);}
+/* workflow diagram */
+.diagram{display:flex;justify-content:center;padding:10px 0 4px;}
+svg{width:100%;max-width:900px;height:auto;}
+.node{fill:var(--panel2);stroke:var(--border);stroke-width:1.5;transition:fill .3s,stroke .3s;}
+.node.active{stroke:var(--blue);stroke-width:2.5;}
+.node.done{stroke:var(--green);}
+.nodetext{fill:var(--text);font-size:12px;font-weight:600;text-anchor:middle;}
+.nodesub{fill:var(--text3);font-size:9px;text-anchor:middle;}
+.edge{stroke:var(--text3);stroke-width:1.5;fill:none;marker-end:url(#arrow);}
+.edge.loop{stroke:var(--purple);stroke-dasharray:4 3;}
+.edge.branch{stroke:var(--gold);}
+.pulse{animation:pulse 1.2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.statusbar{display:flex;align-items:center;gap:10px;font-size:14px;margin-top:10px;}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--text3);}
+.dot.live{background:var(--green);animation:pulse 1s infinite;}
+.roundtag{background:var(--panel2);border:1px solid var(--border);padding:4px 10px;border-radius:8px;font-size:12px;color:var(--text2);}
+.log{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;height:220px;overflow-y:auto;font-family:'SF Mono',Consolas,monospace;font-size:12px;line-height:1.7;}
+.log .l-plan{color:var(--purple);}
+.log .l-exec{color:var(--blue);}
+.log .l-eval{color:var(--gold);}
+.log .l-crit{color:var(--red);}
+.log .l-imp{color:var(--green);}
+.log .l-mem{color:var(--cyan);}
+.log .l-sys{color:var(--text3);}
+.log .l-final{color:var(--green);font-weight:700;}
+.histrow{border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;background:var(--panel2);}
+.histrow .hh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.histrow .hh b{font-size:14px;}
+.score{font-size:20px;font-weight:800;}
+.delta{font-size:12px;padding:2px 8px;border-radius:6px;}
+.delta.up{color:var(--green);background:rgba(61,220,151,.12);}
+.delta.down{color:var(--red);background:rgba(255,107,107,.12);}
+.delta.flat{color:var(--text3);background:rgba(150,150,150,.1);}
+.draft-box{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:13px;line-height:1.6;white-space:pre-wrap;margin-top:8px;}
+.subhead{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin:10px 0 4px;font-weight:700;}
+.barbg{background:var(--panel);border-radius:6px;height:10px;overflow:hidden;margin-top:6px;}
+.barfill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:6px;transition:width .6s ease;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:800px){.grid2{grid-template-columns:1fr;}}
+.finalcard{border:2px solid var(--gold);box-shadow:0 0 24px rgba(255,200,87,.1);}
+.pill{display:inline-block;background:var(--panel2);border:1px solid var(--border);padding:3px 10px;border-radius:20px;font-size:11px;color:var(--text2);margin:2px 4px 2px 0;}
+.spinner{width:14px;height:14px;border:2px solid var(--text3);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.errbox{background:rgba(255,107,107,.1);border:1px solid var(--red);color:var(--red);padding:10px 14px;border-radius:10px;font-size:13px;margin-top:10px;}
+.agentdesc{font-size:12.5px;color:var(--text2);line-height:1.6;margin-bottom:8px;}
+.agentdesc b{color:var(--text);}
+footer.note{text-align:center;color:var(--text3);font-size:12px;margin-top:30px;}
+</style>
+</head>
+<body data-theme="dark">
+<div class="app">
+
+<header class="top">
+  <div>
+    <h1>Autonomous Agent Studio</h1>
+    <div class="sub">Multi-agent orchestration — mock interview answer coaching, live against the Claude API</div>
+  </div>
+  <button class="themebtn" onclick="toggleTheme()">Toggle light/dark</button>
+</header>
+
+<!-- SETUP -->
+<div class="card" id="setupCard">
+  <h2>Interview setup</h2>
+  <div class="row">
+    <div>
+      <label>Target company</label>
+      <input type="text" id="company" placeholder="e.g. Google, Stripe, JPMorgan">
+    </div>
+    <div>
+      <label>Role / position</label>
+      <input type="text" id="role" placeholder="e.g. Product Manager, SOC Analyst">
+    </div>
+  </div>
+  <label>Job description / focus areas (optional)</label>
+  <textarea id="jd" placeholder="Paste a JD or describe what this interview should focus on..."></textarea>
+  <div class="row">
+    <div>
+      <label>Target quality score (threshold to stop) — <span id="threshVal">85</span>/100</label>
+      <input type="range" id="thresh" min="60" max="98" value="85" oninput="threshVal.textContent=this.value">
+    </div>
+    <div>
+      <label>Hard iteration cap (safety fallback)</label>
+      <input type="number" id="cap" value="8" min="3" max="15">
+    </div>
+  </div>
+  <div style="margin-top:18px;">
+    <button class="btn" id="startBtn" onclick="startPipeline()">Start pipeline</button>
+    <button class="btn secondary" onclick="resetAll()">Reset</button>
+  </div>
+  <div id="setupErr"></div>
+</div>
+
+<!-- WORKFLOW DIAGRAM -->
+<div class="card">
+  <h2>Workflow</h2>
+  <div class="diagram">
+    <svg viewBox="0 0 900 320" id="diagramSvg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--text3)"/></marker>
+      </defs>
+      <path class="edge" d="M110,60 L200,60" />
+      <path class="edge" d="M290,60 L380,60" />
+      <path class="edge" d="M470,60 Q520,60 520,110 L520,140" />
+      <path class="edge" d="M520,220 Q520,260 470,260" />
+      <path class="edge" d="M380,260 Q330,260 330,220 L330,160" />
+      <path class="edge loop" d="M330,110 Q330,60 380,60" />
+      <path class="edge branch" d="M610,150 Q680,150 680,90 L680,80" />
+
+      <g id="node-planner"><rect class="node" x="20" y="30" width="90" height="60" rx="10"/><text class="nodetext" x="65" y="55">Planner</text><text class="nodesub" x="65" y="70">question set</text></g>
+      <g id="node-executor"><rect class="node" x="200" y="30" width="90" height="60" rx="10"/><text class="nodetext" x="245" y="55">Executor</text><text class="nodesub" x="245" y="70">draft answer</text></g>
+      <g id="node-evaluator"><rect class="node" x="380" y="30" width="90" height="60" rx="10"/><text class="nodetext" x="425" y="55">Evaluator</text><text class="nodesub" x="425" y="70">score 0-100</text></g>
+      <g id="node-critic"><rect class="node" x="475" y="140" width="90" height="60" rx="10"/><text class="nodetext" x="520" y="165">Critic</text><text class="nodesub" x="520" y="180">critique</text></g>
+      <g id="node-improver"><rect class="node" x="285" y="140" width="90" height="60" rx="10"/><text class="nodetext" x="330" y="165">Improver</text><text class="nodesub" x="330" y="180">rewrite</text></g>
+      <g id="node-memory"><rect class="node" x="285" y="230" width="90" height="60" rx="10"/><text class="nodetext" x="330" y="255">Memory</text><text class="nodesub" x="330" y="270">log history</text></g>
+      <g id="node-final"><rect class="node" x="635" y="30" width="110" height="60" rx="10"/><text class="nodetext" x="690" y="55">Final Reviewer</text><text class="nodesub" x="690" y="70">on stop-check</text></g>
+    </svg>
+  </div>
+  <div class="statusbar">
+    <span class="dot" id="liveDot"></span>
+    <span id="activeAgentLabel">Idle</span>
+    <span class="roundtag" id="roundTag">Not started</span>
+  </div>
+</div>
+
+<!-- AGENT ROLES -->
+<div class="card">
+  <h2>Agent responsibilities</h2>
+  <div class="agentdesc"><b>Planner</b> — reads company, role, and JD focus once, and drafts the single interview question this session will coach an answer for.</div>
+  <div class="agentdesc"><b>Executor</b> — writes the first draft of the candidate's answer to that question.</div>
+  <div class="agentdesc"><b>Evaluator</b> — scores the current draft 0-100 against a rubric (relevance, structure, specificity, confidence) and explains the score. Runs fresh every round on the latest draft.</div>
+  <div class="agentdesc"><b>Critic</b> — reads the same draft and evaluation, and gives pointed, concrete critique the Improver can act on.</div>
+  <div class="agentdesc"><b>Improver</b> — rewrites the answer using the prior evaluation + critique. Its output becomes next round's draft.</div>
+  <div class="agentdesc"><b>Memory Manager</b> — appends each round's score, critique, and draft delta to the running history so later rounds have full context.</div>
+  <div class="agentdesc"><b>Final Reviewer</b> — fires only after the stop-check ends the loop; writes the final assessment and names the exact stop reason.</div>
+  <div class="agentdesc" style="margin-top:6px;">Each round: <b>Evaluator → Critic → Improver</b>, then the stop-check runs (plateau → threshold → hard cap, in that order) before deciding whether to loop back to Evaluator or branch to Final Reviewer.</div>
+</div>
+
+<!-- LIVE DASHBOARD -->
+<div class="grid2">
+  <div class="card">
+    <h2>Activity log</h2>
+    <div class="log" id="logBox"></div>
+  </div>
+  <div class="card">
+    <h2>Current draft</h2>
+    <div id="questionBox" style="font-size:13px;color:var(--text2);margin-bottom:6px;"></div>
+    <div class="draft-box" id="draftBox">Waiting to start...</div>
+  </div>
+</div>
+
+<div class="card" id="historyCard" style="display:none;">
+  <h2>Iteration history</h2>
+  <div id="historyBox"></div>
+</div>
+
+<div class="card finalcard" id="finalCard" style="display:none;">
+  <h2>Final summary</h2>
+  <div id="finalBox"></div>
+</div>
+
+<div class="card" id="extraCard" style="display:none;">
+  <h2>Architecture, extensions & next steps</h2>
+  <div id="extraBox"></div>
+</div>
+
+<footer class="note">Autonomous Agent Studio — every score, critique, and draft above is a live model output, not simulated.</footer>
+</div>
+
+<script>
+function toggleTheme(){
+  const b=document.body;
+  b.setAttribute('data-theme', b.getAttribute('data-theme')==='dark'?'light':'dark');
+}
+
+const els = {
+  log: document.getElementById('logBox'),
+  draft: document.getElementById('draftBox'),
+  question: document.getElementById('questionBox'),
+  activeLabel: document.getElementById('activeAgentLabel'),
+  liveDot: document.getElementById('liveDot'),
+  roundTag: document.getElementById('roundTag'),
+  historyCard: document.getElementById('historyCard'),
+  historyBox: document.getElementById('historyBox'),
+  finalCard: document.getElementById('finalCard'),
+  finalBox: document.getElementById('finalBox'),
+  extraCard: document.getElementById('extraCard'),
+  extraBox: document.getElementById('extraBox'),
+  startBtn: document.getElementById('startBtn'),
+  setupErr: document.getElementById('setupErr')
+};
+
+const NODE_IDS = ['node-planner','node-executor','node-evaluator','node-critic','node-improver','node-memory','node-final'];
+
+function setActiveNode(id, state){
+  NODE_IDS.forEach(n=>{
+    const rect = document.querySelector('#'+n+' rect');
+    if(!rect) return;
+    rect.classList.remove('active','done','pulse');
+  });
+  if(id){
+    const rect = document.querySelector('#'+id+' rect');
+    if(rect){ rect.classList.add(state==='active'?'active':'done'); if(state==='active') rect.classList.add('pulse'); }
+  }
+}
+
+function log(msg, cls){
+  const div = document.createElement('div');
+  div.className = 'l-'+cls;
+  const t = new Date().toLocaleTimeString();
+  div.textContent = '['+t+'] '+msg;
+  els.log.appendChild(div);
+  els.log.scrollTop = els.log.scrollHeight;
+}
+
+function setStatus(agentLabel, live){
+  els.activeLabel.textContent = agentLabel;
+  els.liveDot.className = 'dot' + (live ? ' live' : '');
+}
+
+function setRoundTag(text){
+  els.roundTag.textContent = text;
+}
+
+// ---- Claude API call with retry ----
+async function callClaude(systemPrompt, userPrompt, maxTokens=1000, retries=2){
+  let lastErr;
+  for(let attempt=0; attempt<=retries; attempt++){
+    try{
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: maxTokens,
+          system: systemPrompt,
+          messages: [{role:'user', content: userPrompt}]
+        })
+      });
+      if(!res.ok){
+        const t = await res.text();
+        throw new Error('API error '+res.status+': '+t.slice(0,200));
+      }
+      const data = await res.json();
+      const text = (data.content||[]).map(b=>b.text||'').join('\n').trim();
+      if(!text) throw new Error('Empty response from model');
+      return text;
+    }catch(e){
+      lastErr = e;
+      log('Retry '+(attempt+1)+'/'+retries+' after error: '+e.message, 'sys');
+      await new Promise(r=>setTimeout(r, 600*(attempt+1)));
+    }
+  }
+  throw lastErr;
+}
+
+function extractJSON(text){
+  let cleaned = text.replace(/```json|```/g,'').trim();
+  const start = cleaned.indexOf('{');
+  const end = cleaned.lastIndexOf('}');
+  if(start===-1 || end===-1) throw new Error('No JSON object found in response');
+  return JSON.parse(cleaned.slice(start, end+1));
+}
+
+// ---- System prompts ----
+const SYS_PLANNER = `You are the Planner agent in a mock-interview coaching system. Given a target company, role, and optional job-description focus, produce exactly ONE strong, realistic interview question that company would plausibly ask for that role. Prefer a behavioral or scenario-based question that allows rich, structured answers. Output ONLY the question text, nothing else — no preamble, no quotes, no numbering.`;
+
+const SYS_EXECUTOR = `You are the Executor agent in a mock-interview coaching system. Given an interview question, company, and role, write a first-draft candidate answer as if spoken in the interview. Make it plausible, structured (e.g. STAR-style where relevant), but with realistic room for improvement — this is a genuine first attempt, not a polished final answer. Output ONLY the answer text.`;
+
+const SYS_EVALUATOR = `You are the Evaluator agent in a mock-interview coaching system. You score a candidate's interview answer against a rubric: relevance to the question, structure/clarity, specificity of examples, and confidence/impact of delivery. Score strictly and honestly on a 0-100 scale — reserve 85+ for genuinely strong, hire-worthy answers. Respond with ONLY a raw JSON object, no markdown fences, no extra text, in exactly this shape: {"score": <integer 0-100>, "reasoning": "<2-4 sentence explanation of the score, citing specific strengths and weaknesses>"}`;
+
+const SYS_CRITIC = `You are the Critic agent in a mock-interview coaching system. Given the interview question, the candidate's current answer draft, and the Evaluator's score and reasoning, give sharp, concrete, actionable critique the Improver agent can directly act on. Focus on the 2-3 highest-leverage changes. Do not rewrite the answer yourself — only critique it. Output plain text, 3-6 sentences, no headers.`;
+
+const SYS_IMPROVER = `You are the Improver agent in a mock-interview coaching system. Given the interview question, the current answer draft, the Evaluator's score/reasoning, and the Critic's feedback, rewrite the answer to directly address the critique while preserving what already worked. Output ONLY the improved answer text, nothing else.`;
+
+const SYS_FINAL = `You are the Final Reviewer agent in a mock-interview coaching system. Given the interview question, the final polished answer, the full round-by-round score history, and the reason the loop stopped, write a concise final assessment: overall verdict, why it stopped where it did, and one piece of advice for the real interview. Output plain text, 4-7 sentences.`;
+
+// ---- State ----
+let state = null;
+
+function resetAll(){
+  state = null;
+  els.log.innerHTML = '';
+  els.draft.textContent = 'Waiting to start...';
+  els.question.textContent = '';
+  els.historyCard.style.display='none';
+  els.historyBox.innerHTML='';
+  els.finalCard.style.display='none';
+  els.finalBox.innerHTML='';
+  els.extraCard.style.display='none';
+  els.extraBox.innerHTML='';
+  setStatus('Idle', false);
+  setRoundTag('Not started');
+  setActiveNode(null);
+  els.startBtn.disabled = false;
+  els.setupErr.innerHTML='';
+}
+
+function renderHistory(){
+  els.historyCard.style.display='block';
+  els.historyBox.innerHTML = state.history.map((h,i)=>{
+    let deltaHtml = '';
+    if(i>0){
+      const d = h.score - state.history[i-1].score;
+      const cls = d>0?'up':(d<0?'down':'flat');
+      deltaHtml = `<span class="delta ${cls}">${d>=0?'+':''}${d}</span>`;
+    }
+    return `<div class="histrow">
+      <div class="hh"><b>Round ${h.round}</b><span>${deltaHtml} <span class="score" style="color:var(--blue)">${h.score}</span>/100</span></div>
+      <div class="barbg"><div class="barfill" style="width:${h.score}%"></div></div>
+      <div class="subhead">Evaluator reasoning</div><div style="font-size:13px;color:var(--text2)">${escapeHtml(h.reasoning)}</div>
+      <div class="subhead">Critic feedback</div><div style="font-size:13px;color:var(--text2)">${escapeHtml(h.critique)}</div>
+      ${h.improved ? `<div class="subhead">Improved draft</div><div class="draft-box">${escapeHtml(h.improved)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function startPipeline(){
+  const company = document.getElementById('company').value.trim();
+  const role = document.getElementById('role').value.trim();
+  const jd = document.getElementById('jd').value.trim();
+  const threshold = parseInt(document.getElementById('thresh').value,10);
+  const cap = parseInt(document.getElementById('cap').value,10);
+
+  if(!company || !role){
+    els.setupErr.innerHTML = '<div class="errbox">Please enter both a company and a role.</div>';
+    return;
+  }
+  els.setupErr.innerHTML='';
+  els.startBtn.disabled = true;
+  resetVisualsOnly();
+
+  state = { company, role, jd, threshold, cap, history: [], question:'', draft:'' };
+
+  try{
+    // PLANNER
+    setActiveNode('node-planner','active'); setStatus('Planner — drafting interview question', true); setRoundTag('Planning');
+    log('Planner: generating interview question for '+role+' at '+company, 'plan');
+    const userP = `Company: ${company}\nRole: ${role}\nFocus/JD notes: ${jd || '(none provided)'}`;
+    state.question = await callClaude(SYS_PLANNER, userP, 200);
+    els.question.textContent = 'Q: '+state.question;
+    log('Planner output: "'+state.question+'"', 'plan');
+    setActiveNode('node-planner','done');
+
+    // EXECUTOR
+    setActiveNode('node-executor','active'); setStatus('Executor — drafting first answer', true);
+    log('Executor: writing first-draft candidate answer', 'exec');
+    state.draft = await callClaude(SYS_EXECUTOR, `Question: ${state.question}\nCompany: ${company}\nRole: ${role}`, 500);
+    els.draft.textContent = state.draft;
+    log('Executor produced initial draft ('+state.draft.length+' chars)', 'exec');
+    setActiveNode('node-executor','done');
+
+    // LOOP
+    let round = 0;
+    let stopReason = null;
+    while(true){
+      round++;
+      setRoundTag('Round '+round+' — checking stop condition…');
+
+      // EVALUATOR
+      setActiveNode('node-evaluator','active'); setStatus('Evaluator — scoring round '+round, true);
+      log('Round '+round+' — Evaluator: scoring current draft', 'eval');
+      const evalUser = `Question: ${state.question}\nCandidate answer:\n${state.draft}`;
+      const evalRaw = await callClaude(SYS_EVALUATOR, evalUser, 400);
+      let evalObj;
+      try{ evalObj = extractJSON(evalRaw); }
+      catch(e){ log('Evaluator JSON parse failed, retrying once: '+e.message, 'sys'); const r2 = await callClaude(SYS_EVALUATOR, evalUser, 400); evalObj = extractJSON(r2); }
+      const score = Math.max(0, Math.min(100, parseInt(evalObj.score,10)||0));
+      log('Round '+round+' — Evaluator score: '+score+'/100', 'eval');
+      setActiveNode('node-evaluator','done');
+
+      // CRITIC
+      setActiveNode('node-critic','active'); setStatus('Critic — critiquing round '+round, true);
+      log('Round '+round+' — Critic: generating actionable critique', 'crit');
+      const criticUser = `Question: ${state.question}\nCandidate answer:\n${state.draft}\n\nEvaluator score: ${score}/100\nEvaluator reasoning: ${evalObj.reasoning}`;
+      const critique = await callClaude(SYS_CRITIC, criticUser, 300);
+      log('Round '+round+' — Critic feedback captured', 'crit');
+      setActiveNode('node-critic','done');
+
+      // MEMORY
+      setActiveNode('node-memory','active'); setStatus('Memory Manager — logging round '+round, true);
+      state.history.push({round, score, reasoning: evalObj.reasoning, critique, draft: state.draft, improved: null});
+      log('Memory Manager: round '+round+' logged to history ('+state.history.length+' entries)', 'mem');
+      renderHistory();
+      setActiveNode('node-memory','done');
+
+      // STOP CHECK — plateau, then threshold, then hard cap
+      let plateau = false;
+      if(state.history.length >= 3){
+        const last = state.history[state.history.length-1].score;
+        const prev = state.history[state.history.length-2].score;
+        const prev2 = state.history[state.history.length-3].score;
+        if((last - prev) < 3 && (prev - prev2) < 3) plateau = true;
+      }
+      const thresholdHit = score >= state.threshold;
+      const capHit = round >= state.cap;
+
+      if(plateau){ stopReason = 'plateau: score improved less than 3 points for 2 consecutive rounds'; }
+      else if(thresholdHit){ stopReason = 'threshold: score '+score+' crossed target '+state.threshold; }
+      else if(capHit){ stopReason = 'hard cap: reached safety fallback iteration limit ('+state.cap+' rounds)'; }
+
+      if(stopReason){
+        log('Stop-check fired: '+stopReason, 'sys');
+        break;
+      }
+
+      // IMPROVER
+      setActiveNode('node-improver','active'); setStatus('Improver — rewriting round '+round, true);
+      log('Round '+round+' — Improver: rewriting answer using eval + critique', 'imp');
+      const impUser = `Question: ${state.question}\nCurrent answer:\n${state.draft}\n\nEvaluator score: ${score}/100\nEvaluator reasoning: ${evalObj.reasoning}\nCritic feedback: ${critique}`;
+      const improved = await callClaude(SYS_IMPROVER, impUser, 500);
+      state.history[state.history.length-1].improved = improved;
+      state.draft = improved;
+      els.draft.textContent = state.draft;
+      log('Round '+round+' — Improver produced new draft, looping back to Evaluator', 'imp');
+      setActiveNode('node-improver','done');
+      renderHistory();
+    }
+
+    // FINAL REVIEWER
+    setActiveNode('node-final','active'); setStatus('Final Reviewer — writing summary', true);
+    log('Final Reviewer: composing final assessment', 'final');
+    const scoreHistoryStr = state.history.map(h=>'Round '+h.round+': '+h.score).join(', ');
+    const finalUser = `Question: ${state.question}\nFinal answer:\n${state.draft}\n\nScore history: ${scoreHistoryStr}\nStop reason: ${stopReason}`;
+    const finalText = await callClaude(SYS_FINAL, finalUser, 400);
+    log('Final Reviewer: assessment complete', 'final');
+    setActiveNode('node-final','done');
+    setStatus('Complete', false);
+    setRoundTag('Stopped after round '+round+' — '+stopReason.split(':')[0]);
+
+    renderFinal(finalText, stopReason, round);
+    renderExtras(round);
+
+  }catch(err){
+    log('Fatal error: '+err.message, 'sys');
+    els.setupErr.innerHTML = '<div class="errbox">Pipeline failed: '+escapeHtml(err.message)+'. You can adjust settings and try again.</div>';
+    setStatus('Failed', false);
+  }finally{
+    els.startBtn.disabled = false;
+  }
+}
+
+function resetVisualsOnly(){
+  els.log.innerHTML='';
+  els.historyCard.style.display='none';
+  els.historyBox.innerHTML='';
+  els.finalCard.style.display='none';
+  els.finalBox.innerHTML='';
+  els.extraCard.style.display='none';
+  els.extraBox.innerHTML='';
+}
+
+function renderFinal(text, stopReason, round){
+  els.finalCard.style.display='block';
+  const scores = state.history.map(h=>h.score);
+  const startScore = scores[0], endScore = scores[scores.length-1];
+  const retries = 0;
+  els.finalBox.innerHTML = `
+    <div class="subhead">Final answer</div>
+    <div class="draft-box">${escapeHtml(state.draft)}</div>
+    <div class="subhead">Stop reason</div>
+    <div style="font-size:14px;">${escapeHtml(stopReason)}</div>
+    <div class="subhead">Final Reviewer assessment</div>
+    <div style="font-size:14px;color:var(--text2);line-height:1.6;">${escapeHtml(text)}</div>
+    <div class="subhead">Execution stats</div>
+    <div>
+      <span class="pill">Rounds run: ${round}</span>
+      <span class="pill">Start score: ${startScore}</span>
+      <span class="pill">End score: ${endScore}</span>
+      <span class="pill">Net gain: +${endScore-startScore}</span>
+      <span class="pill">Target: ${state.threshold}</span>
+      <span class="pill">Hard cap: ${state.cap}</span>
+    </div>
+  `;
+}
+
+function renderExtras(round){
+  els.extraCard.style.display='block';
+  els.extraBox.innerHTML = `
+    <div class="subhead">Agent performance summary</div>
+    <div class="agentdesc">Planner produced the interview question once. Executor produced 1 initial draft. Evaluator, Critic, Memory Manager each ran ${round} times. Improver ran ${round - (state.history.length ? 1 : 0) >= 0 ? (round - 1 >= 0 ? round - (state.history[state.history.length-1].improved ? 0 : 1) : 0) : 0} times (skipped on the final stopping round). Final Reviewer ran once.</div>
+    <div class="subhead">Architecture overview</div>
+    <div class="agentdesc">This is a closed-loop multi-agent system: Planner and Executor seed the task, then Evaluator → Critic → Improver form a real iterative loop with a live API call every pass. A Memory Manager threads score/critique/draft state forward each round. A stop-check (plateau → threshold → hard cap) gates whether the loop continues or branches to a Final Reviewer.</div>
+    <div class="subhead">Extension ideas</div>
+    <div class="agentdesc">Add a Safety Monitor agent to flag inappropriate or off-topic content before Evaluator scoring. Support multi-question interview sessions with per-question memory. Add a Persona agent to simulate a specific interviewer style (technical, behavioral, hostile). Let users pick which agents run via the customize path.</div>
+    <div class="subhead">Further prompts to try</div>
+    <div class="agentdesc">"Add a Safety Monitor agent that runs before the Evaluator." · "Extend this into a full multi-turn interview simulation with follow-up questions." · "Add a comparison mode that runs two Improver strategies in parallel and lets Evaluator pick the stronger one."</div>
+  `;
+}
+</script>
+</body>
+</html>
