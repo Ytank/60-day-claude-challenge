@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<!-- saved from url=(0065)file:///C:/Users/sheri/Downloads/content_intelligence_studio.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Intelligence Studio</title>
+<style>
+:root{
+  --bg:#0a0c11;--panel:#12151c;--panel2:#181c26;--border:#242a38;
+  --text:#eef0f6;--text2:#9aa3b8;--text3:#5f6780;
+  --blue:#5b9dff;--green:#3ddc97;--gold:#ffc857;--red:#ff6b6b;--purple:#b18cff;--cyan:#4dd6e0;
+  --radius:16px;
+}
+[data-theme="light"]{
+  --bg:#f4f5f9;--panel:#ffffff;--panel2:#f0f1f6;--border:#e1e4ee;
+  --text:#161a24;--text2:#565f75;--text3:#8890a3;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,sans-serif;transition:background .3s,color .3s;}
+.app{max-width:1200px;margin:0 auto;padding:24px 20px 60px;}
+header.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+header.top h1{font-size:23px;margin:0;font-weight:800;background:linear-gradient(90deg,var(--blue),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent;}
+header.top .sub{color:var(--text2);font-size:13px;margin-top:4px;}
+.themebtn{background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:13px;}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:20px;animation:fadeIn .4s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.card h2{font-size:15px;text-transform:uppercase;letter-spacing:.5px;margin:0 0 14px;color:var(--text2);font-weight:700;}
+label{font-size:13px;color:var(--text2);display:block;margin-bottom:6px;margin-top:14px;}
+input[type=text],textarea{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:11px 13px;border-radius:10px;font-size:14px;font-family:inherit;}
+textarea{min-height:130px;resize:vertical;}
+.uploadzone{border:2px dashed var(--border);border-radius:12px;padding:22px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:var(--panel2);}
+.uploadzone:hover{border-color:var(--blue);}
+.uploadzone.hasimg{padding:12px;}
+.uploadzone img{max-width:100%;max-height:280px;border-radius:8px;display:block;margin:0 auto;}
+.uploadzone .hint{color:var(--text3);font-size:12.5px;margin-top:6px;}
+.btn{background:var(--blue);color:#fff;border:none;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s;}
+.btn:hover{opacity:.9;}
+.btn:active{transform:scale(.98);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border);}
+.row{display:flex;gap:16px;flex-wrap:wrap;}
+.row>div{flex:1;min-width:220px;}
+.reviewerlist{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;}
+.reviewerchip{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--border);padding:8px 14px;border-radius:20px;font-size:13px;transition:border-color .3s,color .3s;}
+.reviewerchip .dot{width:8px;height:8px;border-radius:50%;background:var(--text3);}
+.reviewerchip.active{border-color:var(--blue);color:var(--blue);}
+.reviewerchip.active .dot{background:var(--blue);animation:pulse 1s infinite;}
+.reviewerchip.done{border-color:var(--green);color:var(--green);}
+.reviewerchip.done .dot{background:var(--green);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+.log{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;height:200px;overflow-y:auto;font-family:'SF Mono',Consolas,monospace;font-size:12px;line-height:1.7;}
+.log .l-sys{color:var(--text3);}
+.log .l-rev{color:var(--blue);}
+.log .l-done{color:var(--green);}
+.log .l-err{color:var(--red);}
+.scorewrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.scorecircle{width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;background:conic-gradient(var(--blue) calc(var(--pct)*1%), var(--panel2) 0);position:relative;}
+.scorecircle::before{content:'';position:absolute;width:86px;height:86px;background:var(--panel);border-radius:50%;}
+.scorecircle .num{position:relative;font-size:26px;font-weight:800;}
+.scorecircle .lbl{position:relative;font-size:10px;color:var(--text3);text-transform:uppercase;}
+.catrow{margin-bottom:14px;}
+.catrow .ch{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}
+.catrow .ch b{color:var(--text);}
+.barbg{background:var(--panel2);border-radius:6px;height:10px;overflow:hidden;}
+.barfill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:6px;width:0%;transition:width 1s ease;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:800px){.grid2,.grid3{grid-template-columns:1fr;}}
+.textblock{font-size:13.5px;line-height:1.7;color:var(--text2);white-space:pre-wrap;}
+.subhead{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin:14px 0 6px;font-weight:700;}
+.pill{display:inline-block;background:var(--panel2);border:1px solid var(--border);padding:3px 10px;border-radius:20px;font-size:11px;color:var(--text2);margin:2px 4px 2px 0;}
+.pill.green{color:var(--green);border-color:rgba(61,220,151,.3);}
+.pill.red{color:var(--red);border-color:rgba(255,107,107,.3);}
+.pill.gold{color:var(--gold);border-color:rgba(255,200,87,.3);}
+.rewrite-box{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:16px;font-size:14px;line-height:1.7;white-space:pre-wrap;margin-top:8px;}
+.hookitem{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;font-size:13.5px;}
+.checklist{list-style:none;padding:0;margin:0;}
+.checklist li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:13.5px;color:var(--text2);}
+.checklist li:last-child{border-bottom:none;}
+.checklist li .cb{width:16px;height:16px;border-radius:5px;border:1.5px solid var(--border);flex-shrink:0;margin-top:2px;}
+.finalcard{border:2px solid var(--gold);box-shadow:0 0 26px rgba(255,200,87,.12);}
+.errbox{background:rgba(255,107,107,.1);border:1px solid var(--red);color:var(--red);padding:10px 14px;border-radius:10px;font-size:13px;margin-top:10px;}
+.spinner{width:14px;height:14px;border:2px solid var(--text3);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.bacols{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:700px){.bacols{grid-template-columns:1fr;}}
+.bacol{border-radius:10px;padding:14px;font-size:13.5px;line-height:1.6;white-space:pre-wrap;}
+.bacol.before{background:rgba(255,107,107,.06);border:1px solid rgba(255,107,107,.25);}
+.bacol.after{background:rgba(61,220,151,.06);border:1px solid rgba(61,220,151,.25);}
+footer.note{text-align:center;color:var(--text3);font-size:12px;margin-top:30px;}
+.promptidea{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:8px;color:var(--text2);}
+</style>
+</head>
+<body data-theme="dark">
+<div class="app">
+
+<header class="top">
+  <div>
+    <h1>Content Intelligence Studio</h1>
+    <div class="sub">AI content consultant for LinkedIn — personal brand &amp; authority review</div>
+  </div>
+  <button class="themebtn" onclick="toggleTheme()">Toggle light/dark</button>
+</header>
+
+<!-- INPUT -->
+<div class="card" id="inputCard">
+  <h2>Your post</h2>
+  <label>Post caption / text</label>
+  <textarea id="postText" placeholder="Paste your LinkedIn post text here..."></textarea>
+
+  <label>Image or screenshot (optional but recommended)</label>
+  <div class="uploadzone" id="uploadZone" onclick="document.getElementById(&#39;fileInput&#39;).click()">
+    <div id="uploadInner">
+      <div style="font-size:28px;">📎</div>
+      <div>Click to upload an image or screenshot</div>
+      <div class="hint">PNG or JPG, analyzed directly by Claude's vision</div>
+    </div>
+  </div>
+  <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(event)">
+
+  <div style="margin-top:20px;">
+    <button class="btn" id="analyzeBtn" onclick="startAnalysis()">Run full analysis</button>
+    <button class="btn secondary" onclick="resetAll()">Reset</button>
+  </div>
+  <div id="inputErr"></div>
+</div>
+
+<!-- REVIEWER PIPELINE -->
+<div class="card" id="pipelineCard" style="display:none;">
+  <h2>Review pipeline</h2>
+  <div class="reviewerlist" id="reviewerList"></div>
+  <div class="subhead">Activity log</div>
+  <div class="log" id="logBox"></div>
+</div>
+
+<!-- OVERALL SCORE -->
+<div class="card" id="scoreCard" style="display:none;">
+  <h2>Overall content score</h2>
+  <div class="scorewrap">
+    <div class="scorecircle" id="scoreCircle" style="--pct:0"><div class="num" id="scoreNum">--</div><div class="lbl">/ 100</div></div>
+    <div style="flex:1;min-width:200px;">
+      <div class="textblock" id="scoreSummary">Awaiting analysis...</div>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORY BREAKDOWN -->
+<div class="card" id="categoryCard" style="display:none;">
+  <h2>Category breakdown</h2>
+  <div id="categoryBox"></div>
+</div>
+
+<div class="grid2">
+  <div class="card" id="swCard" style="display:none;">
+    <h2>Strengths &amp; weaknesses</h2>
+    <div class="subhead" style="color:var(--green);">Strengths</div>
+    <div class="textblock" id="strengthsBox"></div>
+    <div class="subhead" style="color:var(--red);">Weaknesses</div>
+    <div class="textblock" id="weaknessesBox"></div>
+    <div class="subhead" style="color:var(--gold);">Missed opportunities</div>
+    <div class="textblock" id="missedBox"></div>
+  </div>
+
+  <div class="card" id="visualCard" style="display:none;">
+    <h2>Visual / image analysis</h2>
+    <div class="textblock" id="visualBox"></div>
+  </div>
+</div>
+
+<div class="card" id="platformCard" style="display:none;">
+  <h2>Platform-specific recommendations (LinkedIn)</h2>
+  <div class="textblock" id="platformBox"></div>
+</div>
+
+<div class="card" id="rewriteCard" style="display:none;">
+  <h2>Rewritten version</h2>
+  <div class="rewrite-box" id="rewriteBox"></div>
+</div>
+
+<div class="card" id="hooksCard" style="display:none;">
+  <h2>Alternative hooks &amp; openers</h2>
+  <div id="hooksBox"></div>
+</div>
+
+<div class="card" id="checklistCard" style="display:none;">
+  <h2>Publishing checklist</h2>
+  <ul class="checklist" id="checklistBox"></ul>
+</div>
+
+<div class="card finalcard" id="finalCard" style="display:none;">
+  <h2>Final report</h2>
+  <div id="finalBox"></div>
+</div>
+
+<footer class="note">Every score, insight, and rewrite above comes from a live Claude API call — nothing here is hardcoded or simulated.</footer>
+</div>
+
+<script>
+function toggleTheme(){
+  const b=document.body;
+  b.setAttribute('data-theme', b.getAttribute('data-theme')==='dark'?'light':'dark');
+}
+
+let uploadedImageBase64 = null;
+let uploadedImageMediaType = null;
+
+function handleFile(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  uploadedImageMediaType = file.type;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    uploadedImageBase64 = ev.target.result.split(',')[1];
+    const zone = document.getElementById('uploadZone');
+    zone.classList.add('hasimg');
+    zone.innerHTML = '<img src="'+ev.target.result+'" alt="uploaded">';
+  };
+  reader.readAsDataURL(file);
+}
+
+const els = {
+  pipelineCard: document.getElementById('pipelineCard'),
+  reviewerList: document.getElementById('reviewerList'),
+  log: document.getElementById('logBox'),
+  scoreCard: document.getElementById('scoreCard'),
+  scoreCircle: document.getElementById('scoreCircle'),
+  scoreNum: document.getElementById('scoreNum'),
+  scoreSummary: document.getElementById('scoreSummary'),
+  categoryCard: document.getElementById('categoryCard'),
+  categoryBox: document.getElementById('categoryBox'),
+  swCard: document.getElementById('swCard'),
+  strengthsBox: document.getElementById('strengthsBox'),
+  weaknessesBox: document.getElementById('weaknessesBox'),
+  missedBox: document.getElementById('missedBox'),
+  visualCard: document.getElementById('visualCard'),
+  visualBox: document.getElementById('visualBox'),
+  platformCard: document.getElementById('platformCard'),
+  platformBox: document.getElementById('platformBox'),
+  rewriteCard: document.getElementById('rewriteCard'),
+  rewriteBox: document.getElementById('rewriteBox'),
+  hooksCard: document.getElementById('hooksCard'),
+  hooksBox: document.getElementById('hooksBox'),
+  checklistCard: document.getElementById('checklistCard'),
+  checklistBox: document.getElementById('checklistBox'),
+  finalCard: document.getElementById('finalCard'),
+  finalBox: document.getElementById('finalBox'),
+  analyzeBtn: document.getElementById('analyzeBtn'),
+  inputErr: document.getElementById('inputErr')
+};
+
+function log(msg, cls){
+  const div = document.createElement('div');
+  div.className = 'l-'+cls;
+  const t = new Date().toLocaleTimeString();
+  div.textContent = '['+t+'] '+msg;
+  els.log.appendChild(div);
+  els.log.scrollTop = els.log.scrollHeight;
+}
+
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ---- Reviewer registry ----
+const REVIEWERS = [
+  {id:'hook', name:'Hook & Opening Reviewer'},
+  {id:'structure', name:'Structure & Readability Reviewer'},
+  {id:'authority', name:'Authority & Brand Voice Reviewer'},
+  {id:'visual', name:'Visual Content Reviewer', imageOnly:true},
+  {id:'platform', name:'LinkedIn Platform Fit Reviewer'},
+  {id:'performance', name:'Engagement Potential Reviewer'},
+  {id:'optimizer', name:'Rewrite & Optimization Specialist'},
+  {id:'final', name:'Final Report Synthesizer'}
+];
+
+function renderReviewerChips(hasImage){
+  els.reviewerList.innerHTML = REVIEWERS.filter(r=>!r.imageOnly || hasImage).map(r=>
+    `<div class="reviewerchip" id="chip-${r.id}"><span class="dot"></span>${r.name}</div>`
+  ).join('');
+}
+function setChip(id, state){
+  const chip = document.getElementById('chip-'+id);
+  if(!chip) return;
+  chip.classList.remove('active','done');
+  if(state) chip.classList.add(state);
+}
+
+// ---- Claude API ----
+async function callClaude(systemPrompt, userContent, maxTokens=800, retries=2){
+  let lastErr;
+  for(let attempt=0; attempt<=retries; attempt++){
+    try{
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          model:'claude-sonnet-4-6',
+          max_tokens: maxTokens,
+          system: systemPrompt,
+          messages:[{role:'user', content: userContent}]
+        })
+      });
+      if(!res.ok){
+        const t = await res.text();
+        throw new Error('API error '+res.status+': '+t.slice(0,200));
+      }
+      const data = await res.json();
+      const text = (data.content||[]).map(b=>b.text||'').join('\n').trim();
+      if(!text) throw new Error('Empty response from model');
+      return text;
+    }catch(e){
+      lastErr = e;
+      log('Retry '+(attempt+1)+'/'+retries+' after error: '+e.message, 'err');
+      await new Promise(r=>setTimeout(r, 600*(attempt+1)));
+    }
+  }
+  throw lastErr;
+}
+
+function buildUserContent(promptText, includeImage){
+  if(includeImage && uploadedImageBase64){
+    return [
+      {type:'image', source:{type:'base64', media_type: uploadedImageMediaType, data: uploadedImageBase64}},
+      {type:'text', text: promptText}
+    ];
+  }
+  return promptText;
+}
+
+// ---- Extraction helper: pulls a labeled section out of plain text ----
+function extractSection(text, label){
+  const re = new RegExp(label+'\\s*:?\\s*\\n?([\\s\\S]*?)(?=\\n[A-Z][A-Za-z /&-]{2,40}:|$)', 'i');
+  const m = text.match(re);
+  return m ? m[1].trim() : '';
+}
+function extractFirstNumber(text){
+  const m = text.match(/(\d{1,3})\s*\/\s*100/) || text.match(/\b(\d{1,3})\b/);
+  return m ? Math.max(0, Math.min(100, parseInt(m[1],10))) : null;
+}
+
+// ---- System prompts ----
+const SYS_HOOK = `You are the Hook & Opening Reviewer in a LinkedIn content intelligence system. Review the first 1-2 lines of a LinkedIn post for scroll-stopping power, curiosity, and clarity. Respond in plain text (no JSON, no markdown fences) with these exact labeled sections, each on its own line followed by content:
+SCORE: <an integer 0-100 for hook strength>
+REASONING: <2-3 sentences explaining the score>
+STRENGTHS: <1-2 sentences>
+WEAKNESSES: <1-2 sentences>`;
+
+const SYS_STRUCTURE = `You are the Structure & Readability Reviewer in a LinkedIn content intelligence system. Review a LinkedIn post's structure: line breaks, pacing, scannability, length, and readability for a professional feed. Respond in plain text with these exact labeled sections:
+SCORE: <integer 0-100>
+REASONING: <2-3 sentences>
+STRENGTHS: <1-2 sentences>
+WEAKNESSES: <1-2 sentences>`;
+
+const SYS_AUTHORITY = `You are the Authority & Brand Voice Reviewer. The user's stated goal is building personal brand and professional authority on LinkedIn. Evaluate whether the post's tone, expertise signaling, and voice support that goal. Respond in plain text with these exact labeled sections:
+SCORE: <integer 0-100>
+REASONING: <2-3 sentences>
+STRENGTHS: <1-2 sentences>
+WEAKNESSES: <1-2 sentences>
+MISSED_OPPORTUNITIES: <1-2 sentences on authority-building angles the post misses>`;
+
+const SYS_VISUAL = `You are the Visual Content Reviewer in a LinkedIn content intelligence system. You are shown an image or screenshot attached to a LinkedIn post. Analyze the actual visual content directly: composition, clarity, professionalism, relevance to a personal-branding post, and whether it would stop the scroll in a LinkedIn feed. Respond in plain text with these exact labeled sections:
+SCORE: <integer 0-100>
+ANALYSIS: <3-5 sentences describing what you actually see and how it performs visually>
+SUGGESTIONS: <1-2 sentences on how to improve the visual>`;
+
+const SYS_PLATFORM = `You are the LinkedIn Platform Fit Reviewer. Evaluate how well this post is optimized for LinkedIn's algorithm and culture specifically: dwell time, comment-bait, hashtag use, ideal length, native formatting, and posting best practices. Respond in plain text with these exact labeled sections:
+SCORE: <integer 0-100>
+RECOMMENDATIONS: <4-6 concrete, LinkedIn-specific bullet-style sentences, each on its own line starting with a dash>`;
+
+const SYS_PERFORMANCE = `You are the Engagement Potential Reviewer. Based on everything about this post (text, and image if present), estimate its likely performance on LinkedIn if published as-is. Be clear this is an AI estimate, not a guarantee. Respond in plain text with these exact labeled sections:
+SCORE: <integer 0-100 representing overall engagement potential>
+PREDICTION: <2-3 sentences estimating likely engagement level and why, explicitly framed as an AI estimate>
+HIGHEST_IMPACT_IMPROVEMENT: <1 sentence naming the single highest-leverage change to boost performance>`;
+
+const SYS_OPTIMIZER = `You are the Rewrite & Optimization Specialist for LinkedIn content. Given the original post (and image context if provided), the goal of building personal brand/authority, and prior reviewer feedback, produce an improved rewritten version of the post optimized for LinkedIn. Then provide 3 alternative hook/opening lines, and a publishing checklist. Respond in plain text with these exact labeled sections:
+REWRITE:
+<the full rewritten post text>
+ALT_HOOKS:
+<3 alternative opening lines, one per line, each starting with a dash>
+CHECKLIST:
+<5-7 short publishing checklist items, one per line, each starting with a dash>`;
+
+const SYS_FINAL = `You are the Final Report Synthesizer for a LinkedIn content intelligence system. Given all prior reviewer scores and feedback for a post aimed at building personal brand/authority, write a comprehensive executive final report. Respond in plain text with these exact labeled sections:
+EXECUTIVE_SUMMARY: <3-4 sentences>
+CONTENT_HEALTH: <2-3 sentences overall health assessment>
+TOP_IMPROVEMENTS: <3 highest-impact improvements, one per line, each starting with a dash>
+PREDICTED_POTENTIAL: <2 sentences, clearly framed as an AI estimate of performance potential if improvements are applied>
+CLOSING_ADVICE: <1-2 sentences of final advice>`;
+
+// ---- State ----
+let results = {};
+
+function resetAll(){
+  document.getElementById('postText').value='';
+  uploadedImageBase64=null; uploadedImageMediaType=null;
+  document.getElementById('uploadZone').classList.remove('hasimg');
+  document.getElementById('uploadZone').innerHTML = `<div id="uploadInner"><div style="font-size:28px;">📎</div><div>Click to upload an image or screenshot</div><div class="hint">PNG or JPG, analyzed directly by Claude's vision</div></div>`;
+  els.pipelineCard.style.display='none';
+  els.log.innerHTML='';
+  els.scoreCard.style.display='none';
+  els.categoryCard.style.display='none';
+  els.swCard.style.display='none';
+  els.visualCard.style.display='none';
+  els.platformCard.style.display='none';
+  els.rewriteCard.style.display='none';
+  els.hooksCard.style.display='none';
+  els.checklistCard.style.display='none';
+  els.finalCard.style.display='none';
+  els.inputErr.innerHTML='';
+  results = {};
+  els.analyzeBtn.disabled = false;
+}
+
+async function startAnalysis(){
+  const postText = document.getElementById('postText').value.trim();
+  if(!postText){
+    els.inputErr.innerHTML = '<div class="errbox">Please paste your post text before running analysis.</div>';
+    return;
+  }
+  els.inputErr.innerHTML='';
+  els.analyzeBtn.disabled = true;
+  const hasImage = !!uploadedImageBase64;
+
+  els.pipelineCard.style.display='block';
+  els.log.innerHTML='';
+  renderReviewerChips(hasImage);
+  results = {};
+
+  try{
+    // HOOK
+    setChip('hook','active'); log('Hook & Opening Reviewer: analyzing opening lines...', 'rev');
+    const hookText = await callClaude(SYS_HOOK, `Post text:\n${postText}`, 400);
+    results.hook = hookText;
+    setChip('hook','done'); log('Hook & Opening Reviewer: complete', 'done');
+
+    // STRUCTURE
+    setChip('structure','active'); log('Structure & Readability Reviewer: analyzing structure...', 'rev');
+    const structureText = await callClaude(SYS_STRUCTURE, `Post text:\n${postText}`, 400);
+    results.structure = structureText;
+    setChip('structure','done'); log('Structure & Readability Reviewer: complete', 'done');
+
+    // AUTHORITY
+    setChip('authority','active'); log('Authority & Brand Voice Reviewer: analyzing voice and authority signaling...', 'rev');
+    const authorityText = await callClaude(SYS_AUTHORITY, `Post text:\n${postText}`, 450);
+    results.authority = authorityText;
+    setChip('authority','done'); log('Authority & Brand Voice Reviewer: complete', 'done');
+
+    // VISUAL (if image)
+    if(hasImage){
+      setChip('visual','active'); log('Visual Content Reviewer: analyzing uploaded image...', 'rev');
+      const visualContent = buildUserContent(`Analyze this image as it accompanies the following LinkedIn post:\n${postText}`, true);
+      const visualText = await callClaude(SYS_VISUAL, visualContent, 500);
+      results.visual = visualText;
+      setChip('visual','done'); log('Visual Content Reviewer: complete', 'done');
+    }
+
+    // PLATFORM
+    setChip('platform','active'); log('LinkedIn Platform Fit Reviewer: checking platform optimization...', 'rev');
+    const platformText = await callClaude(SYS_PLATFORM, `Post text:\n${postText}${hasImage ? '\n(An image is attached to this post.)' : ''}`, 500);
+    results.platform = platformText;
+    setChip('platform','done'); log('LinkedIn Platform Fit Reviewer: complete', 'done');
+
+    // PERFORMANCE
+    setChip('performance','active'); log('Engagement Potential Reviewer: estimating performance...', 'rev');
+    const perfContent = buildUserContent(`Post text:\n${postText}${hasImage ? '\nAn image is attached — factor it into your estimate.' : ''}`, hasImage);
+    const perfText = await callClaude(SYS_PERFORMANCE, perfContent, 400);
+    results.performance = perfText;
+    setChip('performance','done'); log('Engagement Potential Reviewer: complete', 'done');
+
+    // OPTIMIZER
+    setChip('optimizer','active'); log('Rewrite & Optimization Specialist: drafting improved version...', 'rev');
+    const optimizerUser = `Original post:\n${postText}\n\nGoal: build personal brand/authority on LinkedIn.\n\nPrior feedback:\nHook review: ${results.hook}\nStructure review: ${results.structure}\nAuthority review: ${results.authority}\nPlatform review: ${results.platform}`;
+    const optimizerText = await callClaude(SYS_OPTIMIZER, optimizerUser, 900);
+    results.optimizer = optimizerText;
+    setChip('optimizer','done'); log('Rewrite & Optimization Specialist: complete', 'done');
+
+    // FINAL
+    setChip('final','active'); log('Final Report Synthesizer: compiling executive report...', 'rev');
+    const finalUser = `Hook review: ${results.hook}\nStructure review: ${results.structure}\nAuthority review: ${results.authority}\n${hasImage ? 'Visual review: '+results.visual+'\n' : ''}Platform review: ${results.platform}\nPerformance review: ${results.performance}`;
+    const finalText = await callClaude(SYS_FINAL, finalUser, 500);
+    results.final = finalText;
+    setChip('final','done'); log('Final Report Synthesizer: complete', 'done');
+
+    renderAll(postText, hasImage);
+
+  }catch(err){
+    log('Fatal error: '+err.message, 'err');
+    els.inputErr.innerHTML = '<div class="errbox">Analysis failed: '+escapeHtml(err.message)+'. Please try again.</div>';
+  }finally{
+    els.analyzeBtn.disabled = false;
+  }
+}
+
+function renderAll(postText, hasImage){
+  // Scores
+  const hookScore = extractFirstNumber(extractSection(results.hook,'SCORE')) ?? extractFirstNumber(results.hook) ?? 0;
+  const structureScore = extractFirstNumber(extractSection(results.structure,'SCORE')) ?? extractFirstNumber(results.structure) ?? 0;
+  const authorityScore = extractFirstNumber(extractSection(results.authority,'SCORE')) ?? extractFirstNumber(results.authority) ?? 0;
+  const platformScore = extractFirstNumber(extractSection(results.platform,'SCORE')) ?? extractFirstNumber(results.platform) ?? 0;
+  const perfScore = extractFirstNumber(extractSection(results.performance,'SCORE')) ?? extractFirstNumber(results.performance) ?? 0;
+  const visualScore = hasImage ? (extractFirstNumber(extractSection(results.visual,'SCORE')) ?? extractFirstNumber(results.visual) ?? 0) : null;
+
+  const scores = [hookScore, structureScore, authorityScore, platformScore, perfScore];
+  if(visualScore!==null) scores.push(visualScore);
+  const overall = Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+
+  els.scoreCard.style.display='block';
+  els.scoreCircle.style.setProperty('--pct', overall);
+  els.scoreNum.textContent = overall;
+  els.scoreSummary.textContent = extractSection(results.final,'EXECUTIVE_SUMMARY') || 'See detailed breakdown below.';
+
+  // Category breakdown
+  els.categoryCard.style.display='block';
+  const cats = [
+    {name:'Hook & Opening', score:hookScore, reasoning: extractSection(results.hook,'REASONING')},
+    {name:'Structure & Readability', score:structureScore, reasoning: extractSection(results.structure,'REASONING')},
+    {name:'Authority & Brand Voice', score:authorityScore, reasoning: extractSection(results.authority,'REASONING')},
+    {name:'LinkedIn Platform Fit', score:platformScore, reasoning: ''},
+    {name:'Engagement Potential', score:perfScore, reasoning: extractSection(results.performance,'PREDICTION')}
+  ];
+  if(visualScore!==null) cats.splice(3,0,{name:'Visual Content', score:visualScore, reasoning: extractSection(results.visual,'ANALYSIS')});
+
+  els.categoryBox.innerHTML = cats.map(c=>`
+    <div class="catrow">
+      <div class="ch"><span>${c.name}</span><b>${c.score}/100</b></div>
+      <div class="barbg"><div class="barfill" style="width:${c.score}%"></div></div>
+      ${c.reasoning ? `<div style="font-size:12.5px;color:var(--text3);margin-top:4px;">${escapeHtml(c.reasoning)}</div>` : ''}
+    </div>
+  `).join('');
+
+  // Strengths/weaknesses
+  els.swCard.style.display='block';
+  const strengths = [extractSection(results.hook,'STRENGTHS'), extractSection(results.structure,'STRENGTHS'), extractSection(results.authority,'STRENGTHS')].filter(Boolean).join('\n');
+  const weaknesses = [extractSection(results.hook,'WEAKNESSES'), extractSection(results.structure,'WEAKNESSES'), extractSection(results.authority,'WEAKNESSES')].filter(Boolean).join('\n');
+  const missed = extractSection(results.authority,'MISSED_OPPORTUNITIES') || '';
+  els.strengthsBox.textContent = strengths || 'No specific strengths extracted.';
+  els.weaknessesBox.textContent = weaknesses || 'No specific weaknesses extracted.';
+  els.missedBox.textContent = missed || 'None identified.';
+
+  // Visual
+  if(hasImage){
+    els.visualCard.style.display='block';
+    els.visualBox.textContent = extractSection(results.visual,'ANALYSIS') + '\n\n' + (extractSection(results.visual,'SUGGESTIONS') ? 'Suggestion: '+extractSection(results.visual,'SUGGESTIONS') : '');
+  }
+
+  // Platform
+  els.platformCard.style.display='block';
+  els.platformBox.textContent = extractSection(results.platform,'RECOMMENDATIONS') || results.platform;
+
+  // Rewrite
+  els.rewriteCard.style.display='block';
+  els.rewriteBox.textContent = extractSection(results.optimizer,'REWRITE') || results.optimizer;
+
+  // Hooks
+  els.hooksCard.style.display='block';
+  const altHooks = extractSection(results.optimizer,'ALT_HOOKS');
+  const hookLines = altHooks.split('\n').map(l=>l.replace(/^-\s*/,'').trim()).filter(Boolean);
+  els.hooksBox.innerHTML = hookLines.length ? hookLines.map(h=>`<div class="hookitem">${escapeHtml(h)}</div>`).join('') : `<div class="hookitem">${escapeHtml(altHooks)}</div>`;
+
+  // Checklist
+  els.checklistCard.style.display='block';
+  const checklist = extractSection(results.optimizer,'CHECKLIST');
+  const checklistLines = checklist.split('\n').map(l=>l.replace(/^-\s*/,'').trim()).filter(Boolean);
+  els.checklistBox.innerHTML = (checklistLines.length ? checklistLines : [checklist]).map(item=>`<li><span class="cb"></span>${escapeHtml(item)}</li>`).join('');
+
+  // Final report
+  els.finalCard.style.display='block';
+  const topImprovements = extractSection(results.final,'TOP_IMPROVEMENTS');
+  const improvementLines = topImprovements.split('\n').map(l=>l.replace(/^-\s*/,'').trim()).filter(Boolean);
+  els.finalBox.innerHTML = `
+    <div class="subhead">Executive summary</div>
+    <div class="textblock">${escapeHtml(extractSection(results.final,'EXECUTIVE_SUMMARY'))}</div>
+    <div class="subhead">Content health report</div>
+    <div class="textblock">${escapeHtml(extractSection(results.final,'CONTENT_HEALTH'))}</div>
+    <div class="subhead">Highest-impact improvements</div>
+    <div>${improvementLines.map(l=>`<span class="pill gold">${escapeHtml(l)}</span>`).join('')}</div>
+    <div class="subhead">Predicted performance potential (AI estimate)</div>
+    <div class="textblock">${escapeHtml(extractSection(results.final,'PREDICTED_POTENTIAL'))}</div>
+    <div class="subhead">Before vs. after</div>
+    <div class="bacols">
+      <div class="bacol before"><b style="color:var(--red);">BEFORE</b><br><br>${escapeHtml(postText)}</div>
+      <div class="bacol after"><b style="color:var(--green);">AFTER</b><br><br>${escapeHtml(extractSection(results.optimizer,'REWRITE') || results.optimizer)}</div>
+    </div>
+    <div class="subhead">Closing advice</div>
+    <div class="textblock">${escapeHtml(extractSection(results.final,'CLOSING_ADVICE'))}</div>
+    <div class="subhead">Further prompts for deeper optimization</div>
+    <div class="promptidea">"Generate 5 more alternative hooks in a more contrarian tone."</div>
+    <div class="promptidea">"Rewrite this as a carousel/document post instead of a text post."</div>
+    <div class="promptidea">"Analyze how this post compares to top-performing posts in my niche."</div>
+    <div class="promptidea">"Suggest a posting time and follow-up comment strategy to maximize dwell time."</div>
+  `;
+}
+</script>
+
+
+</body></html>
