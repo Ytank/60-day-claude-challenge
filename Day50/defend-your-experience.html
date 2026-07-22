@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Defend Your Experience — Adaptive Interview Prep</title>
+<style>
+/* ===================== TOKENS — Minimal & Clean ===================== */
+:root{
+  --bg:#FAFAF8;
+  --surface:#FFFFFF;
+  --surface-sunken:#F2F1ED;
+  --ink:#1C1D21;
+  --ink-dim:#6B6D76;
+  --ink-faint:#A0A2AC;
+  --border:#E6E4DD;
+  --border-strong:#D2CFC5;
+  --accent:#3B5249;
+  --accent-soft:#E7EDE9;
+  --amber:#B8862E;
+  --amber-soft:#F7EFDD;
+  --danger:#A5433B;
+  --danger-soft:#F5E7E5;
+  --radius:14px;
+  --radius-sm:8px;
+  --shadow:0 1px 2px rgba(28,29,33,0.04), 0 8px 24px rgba(28,29,33,0.05);
+  --font-display: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased; line-height:1.55; font-size:15px;
+}
+h1,h2,h3,h4{font-family:var(--font-display); font-weight:400; margin:0; letter-spacing:-0.01em;}
+button{font-family:inherit; cursor:pointer;}
+.hidden{display:none !important;}
+::-webkit-scrollbar{width:8px;} ::-webkit-scrollbar-thumb{background:var(--border-strong); border-radius:8px;}
+
+/* ===================== SHELL ===================== */
+#shell{max-width:1180px; margin:0 auto; padding:0 28px 90px;}
+#topbar{
+  display:flex; align-items:center; justify-content:space-between; padding:26px 0 22px;
+  border-bottom:1px solid var(--border); margin-bottom:8px;
+}
+.brand{display:flex; align-items:center; gap:12px;}
+.brand-mark{width:30px; height:30px; border:1px solid var(--ink); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:15px;}
+.brand h1{font-size:18px;}
+.brand span{font-size:11.5px; color:var(--ink-faint); letter-spacing:.03em; text-transform:uppercase;}
+.top-actions{display:flex; gap:10px; align-items:center;}
+
+.btn{
+  padding:9px 16px; border-radius:9px; border:1px solid var(--border-strong); background:var(--surface); color:var(--ink);
+  font-size:13px; font-weight:600; display:inline-flex; align-items:center; gap:7px; transition:all .15s ease;
+}
+.btn:hover{border-color:var(--ink); }
+.btn.primary{background:var(--ink); color:#fff; border-color:var(--ink);}
+.btn.primary:hover{background:#000;}
+.btn.subtle{border-color:transparent; background:transparent; color:var(--ink-dim);}
+.btn.subtle:hover{color:var(--ink); background:var(--surface-sunken);}
+.btn:disabled{opacity:.45; cursor:not-allowed;}
+.btn.small{padding:6px 11px; font-size:12px;}
+
+/* ===================== VIEWS ===================== */
+.view{animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+/* ---- Upload view ---- */
+#view-upload{max-width:720px; margin:60px auto 0;}
+.upload-hero h2{font-size:32px; margin-bottom:10px;}
+.upload-hero p{color:var(--ink-dim); font-size:15px; max-width:56ch; margin-bottom:8px;}
+.upload-hero .fine{color:var(--ink-faint); font-size:12.5px; margin-bottom:34px;}
+
+.dropzone{
+  border:1.5px dashed var(--border-strong); border-radius:var(--radius); padding:40px 30px; text-align:center;
+  background:var(--surface); transition:border-color .15s ease, background .15s ease;
+}
+.dropzone.drag{border-color:var(--accent); background:var(--accent-soft);}
+.dropzone .dz-icon{font-size:26px; margin-bottom:10px; color:var(--ink-faint);}
+.dropzone p{margin:4px 0; font-size:13.5px; color:var(--ink-dim);}
+.dropzone .dz-or{font-size:12px; color:var(--ink-faint); margin:14px 0;}
+
+textarea#resumeText{
+  width:100%; min-height:220px; border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px;
+  font-size:13.5px; font-family:var(--font-mono); background:var(--surface-sunken); color:var(--ink); resize:vertical; margin-top:18px;
+}
+.upload-footer{display:flex; justify-content:space-between; align-items:center; margin-top:20px;}
+.persona-note{font-size:12.5px; color:var(--ink-faint);}
+
+.session-history{margin-top:50px;}
+.session-history h3{font-size:14px; color:var(--ink-dim); font-weight:700; margin-bottom:12px; text-transform:uppercase; letter-spacing:.04em; font-family:var(--font-body);}
+.session-item{
+  display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border:1px solid var(--border);
+  border-radius:var(--radius-sm); margin-bottom:8px; background:var(--surface); font-size:13px;
+}
+.session-item .si-meta{color:var(--ink-faint); font-size:12px;}
+
+/* ---- Loading / extracting ---- */
+.loading-block{text-align:center; padding:70px 20px; color:var(--ink-dim);}
+.spinner{
+  width:26px; height:26px; border:2px solid var(--border-strong); border-top-color:var(--ink); border-radius:50%;
+  margin:0 auto 16px; animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ---- Interview view layout ---- */
+#view-interview{display:grid; grid-template-columns:280px 1fr 260px; gap:22px; align-items:start; margin-top:22px;}
+@media (max-width:980px){ #view-interview{grid-template-columns:1fr;} }
+
+.panel{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow);}
+.panel h3{font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); font-family:var(--font-body); font-weight:700; margin-bottom:12px;}
+
+/* claims list */
+.claim-item{
+  padding:11px 12px; border-radius:var(--radius-sm); border:1px solid transparent; margin-bottom:6px; cursor:pointer;
+  transition:background .12s ease, border-color .12s ease;
+}
+.claim-item:hover{background:var(--surface-sunken);}
+.claim-item.active{background:var(--accent-soft); border-color:var(--accent);}
+.claim-item .ci-top{display:flex; justify-content:space-between; align-items:center; gap:6px;}
+.claim-item .ci-cat{font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); font-weight:700;}
+.claim-item .ci-text{font-size:12.8px; margin-top:3px; color:var(--ink);}
+.status-dot{width:8px; height:8px; border-radius:50%; flex:none;}
+.status-dot.not-started{background:var(--ink-faint);}
+.status-dot.in-progress{background:var(--amber);}
+.status-dot.defended{background:var(--accent);}
+.status-dot.weak{background:var(--danger);}
+
+/* center: chat */
+.chat-scroll{max-height:560px; overflow-y:auto; padding-right:4px; margin-bottom:14px;}
+.claim-banner{
+  background:var(--surface-sunken); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:18px; font-size:13px;
+}
+.claim-banner .cb-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); font-weight:700; margin-bottom:4px;}
+.claim-banner .cb-text{font-style:italic; color:var(--ink);}
+.msg{display:flex; gap:10px; margin-bottom:18px; align-items:flex-start;}
+.msg .avatar{
+  width:26px; height:26px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:700; font-family:var(--font-display);
+}
+.msg.interviewer .avatar{background:var(--ink); color:#fff;}
+.msg.user .avatar{background:var(--accent-soft); color:var(--accent);}
+.msg .bubble{background:var(--surface-sunken); border-radius:12px; padding:11px 14px; font-size:13.8px; max-width:88%;}
+.msg.user .bubble{background:var(--accent-soft);}
+.msg .eval-note{font-size:11.8px; color:var(--ink-faint); margin-top:6px; padding-left:36px; font-style:italic;}
+
+.answer-input-wrap{display:flex; gap:10px; align-items:flex-end;}
+textarea#answerInput{
+  flex:1; min-height:64px; max-height:180px; border:1px solid var(--border); border-radius:var(--radius-sm);
+  padding:12px 14px; font-size:13.8px; font-family:inherit; resize:vertical; background:var(--surface);
+}
+.chat-controls{display:flex; justify-content:space-between; align-items:center; margin-top:10px;}
+.chat-controls .left-controls{display:flex; gap:8px;}
+
+.empty-chat{text-align:center; padding:60px 20px; color:var(--ink-faint); font-size:13.5px;}
+
+/* right: confidence dashboard */
+.ring-wrap{display:flex; flex-direction:column; align-items:center; margin-bottom:18px;}
+.ring-num{font-family:var(--font-display); font-size:30px; margin-top:-72px;}
+.ring-lbl{font-size:11px; color:var(--ink-faint); margin-top:2px; text-transform:uppercase; letter-spacing:.04em;}
+.mini-stat{display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-dim); padding:6px 0; border-bottom:1px solid var(--border);}
+.mini-stat:last-child{border-bottom:none;}
+.mini-stat b{color:var(--ink);}
+
+/* ---- Report view ---- */
+#view-report{margin-top:22px;}
+.report-hero{display:flex; gap:32px; align-items:center; padding:30px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:26px; flex-wrap:wrap;}
+.report-hero .rh-score{text-align:center;}
+.report-hero h2{font-size:22px; margin-bottom:6px;}
+.report-hero p{color:var(--ink-dim); font-size:13.8px; max-width:60ch;}
+.report-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:26px;}
+@media (max-width:760px){.report-grid{grid-template-columns:1fr;}}
+.report-col h3{font-size:14px; margin-bottom:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-dim); font-family:var(--font-body); font-weight:700;}
+.report-claim-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:10px;}
+.report-claim-card .rc-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:6px;}
+.rc-claim{font-size:13.3px; font-style:italic;}
+.rc-score{font-family:var(--font-mono); font-size:12px; font-weight:700; flex:none;}
+.rc-note{font-size:12.5px; color:var(--ink-dim);}
+.bar-track{height:5px; background:var(--surface-sunken); border-radius:4px; overflow:hidden; margin:8px 0 4px;}
+.bar-fill{height:100%; border-radius:4px;}
+.recommend-list{list-style:none; margin:0; padding:0;}
+.recommend-list li{padding:12px 14px; border-left:3px solid var(--amber); background:var(--amber-soft); border-radius:0 8px 8px 0; margin-bottom:10px; font-size:13px;}
+.report-footer{display:flex; gap:10px; margin-top:10px;}
+
+/* ---- error / rate limit ---- */
+.error-box{background:var(--danger-soft); border:1px solid var(--danger); color:var(--danger); border-radius:var(--radius-sm); padding:12px 14px; font-size:13px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; gap:10px;}
+
+/* ---- help modal ---- */
+.modal-overlay{position:fixed; inset:0; background:rgba(28,29,33,0.4); display:flex; align-items:center; justify-content:center; z-index:100; padding:20px;}
+.modal{background:var(--surface); border-radius:var(--radius); max-width:560px; width:100%; padding:30px; position:relative; box-shadow:0 30px 70px rgba(0,0,0,0.25); max-height:85vh; overflow-y:auto;}
+.modal-close{position:absolute; top:16px; right:16px; border:none; background:var(--surface-sunken); width:30px; height:30px; border-radius:8px; color:var(--ink-dim);}
+.modal h2{font-size:20px; margin-bottom:10px;}
+.modal h4{font-size:13.5px; margin:16px 0 4px;}
+.modal p{font-size:13.3px; color:var(--ink-dim); margin:0 0 4px;}
+
+#toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(16px); opacity:0; background:var(--ink); color:#fff; padding:10px 18px; border-radius:9px; font-size:13px; transition:all .25s ease; z-index:200; pointer-events:none;}
+#toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div id="shell">
+  <div id="topbar">
+    <div class="brand">
+      <div class="brand-mark">D</div>
+      <div><h1>Defend Your Experience</h1><span>Adaptive interview stress-test</span></div>
+    </div>
+    <div class="top-actions">
+      <button class="btn subtle" id="helpBtn">What is this?</button>
+      <button class="btn subtle hidden" id="startOverBtn">Start over</button>
+    </div>
+  </div>
+
+  <!-- ============ UPLOAD VIEW ============ -->
+  <div class="view" id="view-upload">
+    <div class="upload-hero">
+      <h2>This won't polish your resume. It will test it.</h2>
+      <p>Paste or drop your resume below. This tool extracts every claim you make — every metric, every "led," every "built" — and cross-examines you on each one, starting friendly and getting tougher, the way a real senior interviewer would.</p>
+      <p class="fine">Built for: a senior software/tech job interview. Nothing is saved outside your browser's local storage.</p>
+    </div>
+
+    <div class="dropzone" id="dropzone">
+      <div class="dz-icon">&#128196;</div>
+      <p><strong>Drop a .txt or .md resume file here</strong></p>
+      <p>or click to choose a file</p>
+      <input type="file" id="fileInput" accept=".txt,.md,text/plain" class="hidden">
+    </div>
+    <div class="dz-or" style="text-align:center;">— or paste your resume text directly —</div>
+    <textarea id="resumeText" placeholder="Paste your resume, LinkedIn About section, or a plain-text bio here..."></textarea>
+
+    <div class="upload-footer">
+      <span class="persona-note">Interviewer style: mixed — starts warm, escalates skepticism if answers stay vague.</span>
+      <button class="btn primary" id="startBtn">Extract claims &amp; begin &rarr;</button>
+    </div>
+
+    <div class="session-history hidden" id="sessionHistoryWrap">
+      <h3>Previous sessions</h3>
+      <div id="sessionHistoryList"></div>
+    </div>
+  </div>
+
+  <!-- ============ LOADING VIEW ============ -->
+  <div class="view hidden" id="view-loading">
+    <div class="loading-block">
+      <div class="spinner"></div>
+      <p id="loadingLabel">Reading your resume and identifying claims worth defending...</p>
+    </div>
+  </div>
+
+  <!-- ============ INTERVIEW VIEW ============ -->
+  <div class="view hidden" id="view-interview">
+    <!-- LEFT: claims list -->
+    <div class="panel">
+      <h3>Claims to defend</h3>
+      <div id="claimsList"></div>
+    </div>
+
+    <!-- CENTER: chat -->
+    <div class="panel">
+      <div id="claimBannerWrap"></div>
+      <div class="chat-scroll" id="chatScroll"></div>
+      <div id="errorSlot"></div>
+      <div class="answer-input-wrap">
+        <textarea id="answerInput" placeholder="Type your answer as you would say it out loud..."></textarea>
+        <button class="btn primary" id="sendAnswerBtn">Respond</button>
+      </div>
+      <div class="chat-controls">
+        <div class="left-controls">
+          <button class="btn small subtle" id="skipClaimBtn">Skip to next claim</button>
+        </div>
+        <button class="btn small primary" id="finishBtn">Generate Defense Report</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: dashboard -->
+    <div class="panel">
+      <h3>Overall readiness</h3>
+      <div class="ring-wrap">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#F2F1ED" stroke-width="10"></circle>
+          <circle id="ringProgress" cx="60" cy="60" r="52" fill="none" stroke="#3B5249" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 60 60)"></circle>
+        </svg>
+        <div class="ring-num" id="ringNum">0%</div>
+        <div class="ring-lbl">Avg. confidence</div>
+      </div>
+      <div class="mini-stat"><span>Claims total</span><b id="statTotal">0</b></div>
+      <div class="mini-stat"><span>Defended</span><b id="statDefended">0</b></div>
+      <div class="mini-stat"><span>Weak / needs work</span><b id="statWeak">0</b></div>
+      <div class="mini-stat"><span>Not started</span><b id="statNotStarted">0</b></div>
+    </div>
+  </div>
+
+  <!-- ============ REPORT VIEW ============ -->
+  <div class="view hidden" id="view-report">
+    <div id="reportContent"></div>
+  </div>
+</div>
+
+<!-- HELP MODAL -->
+<div class="modal-overlay hidden" id="helpOverlay">
+  <div class="modal">
+    <button class="modal-close" data-close="helpOverlay">&times;</button>
+    <h2>How this works</h2>
+    <p>This is not a resume reviewer — it's an interview stress-test. It reads your resume, pulls out individual claims (achievements, ownership statements, metrics), and interviews you on each one, one at a time.</p>
+    <h4>Why it gets tougher</h4>
+    <p>The interviewer persona starts warm and curious. If your answers stay vague or lack specifics, the follow-up questions get more pointed — exactly like a real senior interviewer probing for substance.</p>
+    <h4>Confidence scoring</h4>
+    <p>After each answer, your confidence score for that claim updates based on specificity, evidence, and how well you handled the follow-up — not on how long your answer was.</p>
+    <h4>Defense Report</h4>
+    <p>At the end, you get a full readiness breakdown: which claims are well-defended, which are weak, and concrete prep recommendations for each one before you face a real interviewer.</p>
+    <h4>Your data</h4>
+    <p>Everything is stored in this browser's local storage only. Nothing is uploaded anywhere except to Claude for generating questions and evaluations during your session.</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ================= CONFIG ================= */
+const MODEL = "claude-sonnet-4-6";
+const LS_SESSIONS = "dye_sessions_v1";
+
+/* ================= STATE ================= */
+let state = {
+  resumeText:"",
+  claims:[],        // {id, text, category, source, status, confidence, exchanges:[{q,a,note}], report:null}
+  activeClaimId:null,
+  sessionId:null,
+  startedAt:null
+};
+
+function $(id){ return document.getElementById(id); }
+function toast(msg){
+  const t=$("toast"); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._timer); t._timer=setTimeout(()=>t.classList.remove('show'),2400);
+}
+function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+/* ================= VIEW SWITCHING ================= */
+function showView(name){
+  ["upload","loading","interview","report"].forEach(v=> $("view-"+v).classList.toggle("hidden", v!==name));
+  $("startOverBtn").classList.toggle("hidden", name==="upload");
+}
+
+/* ================= CLAUDE API HELPER ================= */
+async function callClaude(messages, maxTokens){
+  const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ model: MODEL, max_tokens: maxTokens || 1000, messages })
+  });
+  if(!resp.ok){
+    const err = new Error("API error " + resp.status);
+    err.status = resp.status;
+    throw err;
+  }
+  const data = await resp.json();
+  const text = (data.content||[]).map(b=>b.type==="text"? b.text : "").join("\n");
+  return text;
+}
+
+function parseJsonLoose(text){
+  let t = text.trim();
+  t = t.replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+  const start = t.indexOf('{') === -1 ? t.indexOf('[') : Math.min(...[t.indexOf('{'), t.indexOf('[')].filter(i=>i>=0));
+  try{ return JSON.parse(t); }catch(e){
+    // fallback: try to locate first { or [ and last } or ]
+    const firstBrace = Math.min(...['{','['].map(c=>{const i=t.indexOf(c); return i<0?Infinity:i;}));
+    const lastBrace = Math.max(t.lastIndexOf('}'), t.lastIndexOf(']'));
+    if(firstBrace!==Infinity && lastBrace>firstBrace){
+      try{ return JSON.parse(t.slice(firstBrace, lastBrace+1)); }catch(e2){ return null; }
+    }
+    return null;
+  }
+}
+
+async function callWithRetry(messages, maxTokens, onError){
+  try{
+    return await callClaude(messages, maxTokens);
+  }catch(e){
+    if(onError) onError(e);
+    throw e;
+  }
+}
+
+/* ================= UPLOAD VIEW ================= */
+const dropzone = $("dropzone");
+const fileInput = $("fileInput");
+dropzone.addEventListener('click', ()=> fileInput.click());
+dropzone.addEventListener('dragover', (e)=>{ e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', ()=> dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', (e)=>{
+  e.preventDefault(); dropzone.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if(file) readFile(file);
+});
+fileInput.addEventListener('change', (e)=>{ if(e.target.files[0]) readFile(e.target.files[0]); });
+function readFile(file){
+  const reader = new FileReader();
+  reader.onload = ()=>{ $("resumeText").value = reader.result; toast("File loaded — review below"); };
+  reader.onerror = ()=> toast("Couldn't read that file — try pasting the text instead");
+  reader.readAsText(file);
+}
+
+$("startBtn").addEventListener('click', beginExtraction);
+
+async function beginExtraction(){
+  const text = $("resumeText").value.trim();
+  if(text.length < 40){ toast("Paste a bit more detail — at least a few bullet points"); return; }
+  state.resumeText = text;
+  state.sessionId = "s_" + Date.now();
+  state.startedAt = new Date().toISOString();
+  showView("loading");
+  $("loadingLabel").textContent = "Reading your resume and identifying claims worth defending...";
+  try{
+    const raw = await callWithRetry([{
+      role:"user",
+      content:`You are preparing a senior software/tech candidate for a tough behavioral+technical interview. Read the resume text below and extract 6 to 12 distinct, individually defensible CLAIMS — specific things the candidate is asserting about themselves (achievements, ownership, leadership, technical decisions, quantified impact, skills). Skip generic filler (objective statements, contact info).
+
+For each claim return: the exact or lightly paraphrased claim text, a category (one of: Leadership, Technical Depth, Impact & Metrics, Ownership & Scope, Collaboration, Problem Solving), and the closest resume snippet it's drawn from.
+
+Return ONLY valid JSON, no preamble, no markdown fences, in this exact shape:
+[{"text":"...", "category":"...", "source":"..."}]
+
+RESUME:
+"""
+${text}
+"""`
+    }], 1500);
+    const parsed = parseJsonLoose(raw);
+    if(!parsed || !Array.isArray(parsed) || parsed.length===0){
+      throw new Error("Could not parse claims from response");
+    }
+    state.claims = parsed.map((c,i)=>({
+      id:"c"+i, text:c.text||"(claim)", category:c.category||"General", source:c.source||"",
+      status:"not-started", confidence:0, exchanges:[], report:null
+    }));
+    renderClaimsList();
+    selectClaim(state.claims[0].id);
+    showView("interview");
+    updateDashboard();
+    saveSession();
+  }catch(e){
+    showView("upload");
+    if(e.status===429){
+      toast("Rate limited by the API — please wait a moment and try again");
+    } else {
+      toast("Something went wrong reading that resume — try again or paste plain text");
+    }
+    console.error(e);
+  }
+}
+
+/* ================= CLAIMS LIST ================= */
+function renderClaimsList(){
+  const wrap = $("claimsList");
+  if(state.claims.length===0){
+    wrap.innerHTML = `<div class="empty-chat">No claims yet.</div>`;
+    return;
+  }
+  wrap.innerHTML = state.claims.map(c=>`
+    <div class="claim-item ${c.id===state.activeClaimId?'active':''}" data-claim="${c.id}">
+      <div class="ci-top">
+        <span class="ci-cat">${escapeHtml(c.category)}</span>
+        <span class="status-dot ${c.status}" title="${c.status.replace('-',' ')}"></span>
+      </div>
+      <div class="ci-text">${escapeHtml(c.text)}</div>
+    </div>`).join('');
+  wrap.querySelectorAll('[data-claim]').forEach(el=>{
+    el.addEventListener('click', ()=> selectClaim(el.dataset.claim));
+  });
+}
+
+function selectClaim(id){
+  state.activeClaimId = id;
+  renderClaimsList();
+  const claim = state.claims.find(c=>c.id===id);
+  renderClaimBanner(claim);
+  renderChat(claim);
+  if(claim.exchanges.length===0){
+    askOpeningQuestion(claim);
+  }
+}
+
+function renderClaimBanner(claim){
+  $("claimBannerWrap").innerHTML = `
+    <div class="claim-banner">
+      <div class="cb-label">${escapeHtml(claim.category)} · defending this claim</div>
+      <div class="cb-text">"${escapeHtml(claim.text)}"</div>
+    </div>`;
+}
+
+/* ================= CHAT RENDERING ================= */
+function renderChat(claim){
+  const scroll = $("chatScroll");
+  if(claim.exchanges.length===0){
+    scroll.innerHTML = `<div class="empty-chat">Preparing your first question on this claim...</div>`;
+    return;
+  }
+  scroll.innerHTML = claim.exchanges.map(ex=>{
+    let html = `<div class="msg interviewer"><div class="avatar">I</div><div class="bubble">${escapeHtml(ex.q)}</div></div>`;
+    if(ex.a){
+      html += `<div class="msg user"><div class="avatar">${escapeHtml((state.userInitial||"Y"))}</div><div class="bubble">${escapeHtml(ex.a)}</div></div>`;
+      if(ex.note) html += `<div class="eval-note">${escapeHtml(ex.note)}</div>`;
+    }
+    return html;
+  }).join('');
+  scroll.scrollTop = scroll.scrollHeight;
+}
+
+function clearError(){ $("errorSlot").innerHTML = ""; }
+function showError(msg, retryFn){
+  $("errorSlot").innerHTML = `<div class="error-box"><span>${escapeHtml(msg)}</span><button class="btn small" id="retryBtn">Retry</button></div>`;
+  $("retryBtn").addEventListener('click', ()=>{ clearError(); retryFn(); });
+}
+
+/* ================= OPENING QUESTION ================= */
+async function askOpeningQuestion(claim){
+  clearError();
+  const scroll = $("chatScroll");
+  scroll.innerHTML = `<div class="empty-chat">Preparing your first question on this claim...</div>`;
+  try{
+    const raw = await callWithRetry([{
+      role:"user",
+      content:`You are a senior tech interviewer starting warm and curious, but you will escalate skepticism later if answers stay vague. The candidate's resume includes this claim: "${claim.text}" (category: ${claim.category}, source snippet: "${claim.source}").
+
+Ask exactly ONE specific opening question that tests this exact claim — reference specifics from the claim itself (any numbers, technologies, team size, timeframe mentioned) rather than a generic "tell me about a time" question. Return ONLY the question text, no preamble, no quotes.`
+    }], 300);
+    claim.exchanges.push({q: raw.trim(), a:null, note:null});
+    claim.status = "in-progress";
+    renderChat(claim);
+    renderClaimsList();
+    updateDashboard();
+    saveSession();
+  }catch(e){
+    if(e.status===429){
+      showError("Rate limited — please wait a moment.", ()=>askOpeningQuestion(claim));
+    } else {
+      showError("Couldn't generate a question just now.", ()=>askOpeningQuestion(claim));
+    }
+    scroll.innerHTML = `<div class="empty-chat">Question failed to load.</div>`;
+  }
+}
+
+/* ================= SEND ANSWER ================= */
+$("sendAnswerBtn").addEventListener('click', submitAnswer);
+$("answerInput").addEventListener('keydown', (e)=>{
+  if(e.key==='Enter' && (e.metaKey||e.ctrlKey)){ submitAnswer(); }
+});
+
+async function submitAnswer(){
+  const claim = state.claims.find(c=>c.id===state.activeClaimId);
+  if(!claim) return;
+  const input = $("answerInput");
+  const answer = input.value.trim();
+  if(!answer){ toast("Type an answer first"); return; }
+  const lastEx = claim.exchanges[claim.exchanges.length-1];
+  if(!lastEx || lastEx.a){ return; }
+  lastEx.a = answer;
+  input.value = "";
+  renderChat(claim);
+  clearError();
+
+  $("sendAnswerBtn").disabled = true;
+  const scroll = $("chatScroll");
+  scroll.insertAdjacentHTML('beforeend', `<div class="empty-chat" id="thinkingLine">Evaluating your answer...</div>`);
+  scroll.scrollTop = scroll.scrollHeight;
+
+  const transcript = claim.exchanges.map((ex,i)=>`Q${i+1}: ${ex.q}\nA${i+1}: ${ex.a||"(pending)"}`).join('\n\n');
+
+  try{
+    const raw = await callWithRetry([{
+      role:"user",
+      content:`You are a senior tech interviewer cross-examining a candidate on this specific resume claim: "${claim.text}" (category: ${claim.category}).
+
+Conversation so far:
+${transcript}
+
+Evaluate the candidate's latest answer for specificity, evidence, ownership (their role vs. the team's), and how well it holds up under scrutiny. Then decide the next move:
+- If the answer was vague, generic, or unverifiable, ask a tougher, more pointed follow-up question that pushes for specifics (numbers, their exact role, trade-offs, what they'd do differently).
+- If the answer was strong and specific, you may ask one more angle (e.g. a challenge to their reasoning, a "what if" scenario) OR decide this claim is now well defended.
+- Escalate skepticism the longer the claim goes without concrete specifics.
+
+Return ONLY valid JSON in this exact shape, no markdown fences:
+{"confidence": <integer 0-100, cumulative confidence this claim is well-defended>, "assessment": "<one short sentence, spoken as an aside about the answer just given>", "status": "<one of: developing, defended, weak>", "follow_up_question": "<next question text, or empty string if no more questions needed for this claim>"}`
+    }], 500);
+    const parsed = parseJsonLoose(raw);
+    $("thinkingLine")?.remove();
+    if(!parsed){ throw new Error("bad json"); }
+    lastEx.note = parsed.assessment || "";
+    claim.confidence = Math.max(0, Math.min(100, parsed.confidence ?? claim.confidence));
+    claim.status = parsed.status && ["developing","defended","weak"].includes(parsed.status)
+      ? (parsed.status==="developing" ? "in-progress" : parsed.status)
+      : "in-progress";
+    if(parsed.follow_up_question && parsed.follow_up_question.trim() && claim.exchanges.length < 6){
+      claim.exchanges.push({q: parsed.follow_up_question.trim(), a:null, note:null});
+    } else if(claim.status==="in-progress"){
+      claim.status = claim.confidence >= 60 ? "defended" : "weak";
+    }
+    renderChat(claim);
+    renderClaimsList();
+    updateDashboard();
+    saveSession();
+  }catch(e){
+    $("thinkingLine")?.remove();
+    if(e.status===429){
+      showError("Rate limited by the API — please wait a moment and retry.", ()=>{ lastEx.a=null; submitAnswer(); });
+      lastEx.a = answer; // keep for retry context but allow resubmission path via retry button re-triggering logic differently
+    } else {
+      showError("Couldn't evaluate that answer — check your connection and retry.", ()=>{ submitAnswerRetry(claim, answer); });
+    }
+  } finally {
+    $("sendAnswerBtn").disabled = false;
+  }
+}
+
+function submitAnswerRetry(claim, answer){
+  const lastEx = claim.exchanges[claim.exchanges.length-1];
+  if(lastEx && !lastEx.a){ lastEx.a = answer; }
+  clearError();
+  submitAnswer.__retry = true;
+  // Re-run evaluation directly since answer already recorded
+  const input = $("answerInput");
+  input.value = "";
+  submitAnswer();
+}
+
+/* ================= SKIP / NAVIGATE ================= */
+$("skipClaimBtn").addEventListener('click', ()=>{
+  const idx = state.claims.findIndex(c=>c.id===state.activeClaimId);
+  const next = state.claims[idx+1];
+  if(next){ selectClaim(next.id); } else { toast("That's the last claim — generate your report when ready"); }
+});
+
+/* ================= DASHBOARD ================= */
+function updateDashboard(){
+  const total = state.claims.length;
+  const defended = state.claims.filter(c=>c.status==="defended").length;
+  const weak = state.claims.filter(c=>c.status==="weak").length;
+  const notStarted = state.claims.filter(c=>c.status==="not-started").length;
+  $("statTotal").textContent = total;
+  $("statDefended").textContent = defended;
+  $("statWeak").textContent = weak;
+  $("statNotStarted").textContent = notStarted;
+
+  const avg = total ? Math.round(state.claims.reduce((s,c)=>s+c.confidence,0)/total) : 0;
+  const circumference = 326.7;
+  const offset = circumference - (avg/100)*circumference;
+  $("ringProgress").setAttribute('stroke-dashoffset', offset);
+  $("ringProgress").setAttribute('stroke', avg>=70?'#3B5249':avg>=40?'#B8862E':'#A5433B');
+  $("ringNum").textContent = avg+"%";
+}
+
+/* ================= FINISH / REPORT ================= */
+$("finishBtn").addEventListener('click', generateReport);
+
+async function generateReport(){
+  showView("loading");
+  $("loadingLabel").textContent = "Compiling your Defense Report...";
+  const summary = state.claims.map(c=>`Claim: ${c.text}\nCategory: ${c.category}\nStatus: ${c.status}\nConfidence: ${c.confidence}\nExchanges: ${c.exchanges.map(e=>`Q: ${e.q} | A: ${e.a||'(skipped)'} | Note: ${e.note||''}`).join(' || ')}`).join('\n\n');
+  try{
+    const raw = await callWithRetry([{
+      role:"user",
+      content:`You just finished mock-interviewing a senior software/tech candidate claim-by-claim. Here is the full session data:
+
+${summary}
+
+Produce a final holistic Defense Report as ONLY valid JSON in this exact shape, no markdown fences:
+{
+ "overall_readiness": <integer 0-100>,
+ "headline": "<one sentence overall verdict, direct and honest>",
+ "strengths": ["<specific strength tied to a specific claim>", "..."],
+ "risk_areas": ["<specific risk tied to a specific claim>", "..."],
+ "recommendations": [{"claim": "<claim text>", "advice": "<concrete, specific prep advice, e.g. quantify X, prepare a story about Y trade-off>"}]
+}
+Keep strengths and risk_areas to 2-4 items each, and recommendations only for claims with status weak or developing.`
+    }], 1000);
+    const parsed = parseJsonLoose(raw);
+    renderReport(parsed);
+    showView("report");
+    saveSession(true);
+  }catch(e){
+    showView("interview");
+    toast(e.status===429 ? "Rate limited — try generating the report again shortly" : "Couldn't generate the report — try again");
+  }
+}
+
+function renderReport(rep){
+  if(!rep){
+    $("reportContent").innerHTML = `<div class="empty-chat">Report generation failed to parse. Try again from the interview view.</div>`;
+    return;
+  }
+  const total = state.claims.length;
+  const defended = state.claims.filter(c=>c.status==="defended");
+  const weak = state.claims.filter(c=>c.status==="weak" || c.status==="in-progress" || c.status==="not-started");
+
+  const barColor = (score)=> score>=70?'#3B5249':score>=40?'#B8862E':'#A5433B';
+
+  $("reportContent").innerHTML = `
+    <div class="report-hero">
+      <div class="rh-score">
+        <svg width="100" height="100" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#F2F1ED" stroke-width="10"></circle>
+          <circle cx="60" cy="60" r="52" fill="none" stroke="${barColor(rep.overall_readiness)}" stroke-width="10" stroke-linecap="round"
+            stroke-dasharray="326.7" stroke-dashoffset="${326.7 - (rep.overall_readiness/100)*326.7}" transform="rotate(-90 60 60)"></circle>
+        </svg>
+        <div style="font-family:var(--font-display); font-size:24px; margin-top:-64px;">${rep.overall_readiness}%</div>
+      </div>
+      <div>
+        <h2>Defense Report</h2>
+        <p>${escapeHtml(rep.headline||"")}</p>
+      </div>
+    </div>
+
+    <div class="report-grid">
+      <div class="report-col">
+        <h3>Well defended (${defended.length})</h3>
+        ${defended.length? defended.map(c=>`
+          <div class="report-claim-card">
+            <div class="rc-top"><div class="rc-claim">"${escapeHtml(c.text)}"</div><div class="rc-score" style="color:${barColor(c.confidence)}">${c.confidence}%</div></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${c.confidence}%; background:${barColor(c.confidence)};"></div></div>
+            <div class="rc-note">${escapeHtml(c.exchanges[c.exchanges.length-1]?.note || "")}</div>
+          </div>`).join('') : `<div class="empty-chat">None yet — that's useful to know before the real interview.</div>`}
+      </div>
+      <div class="report-col">
+        <h3>Needs more work (${weak.length})</h3>
+        ${weak.length? weak.map(c=>`
+          <div class="report-claim-card">
+            <div class="rc-top"><div class="rc-claim">"${escapeHtml(c.text)}"</div><div class="rc-score" style="color:${barColor(c.confidence)}">${c.confidence}%</div></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${c.confidence}%; background:${barColor(c.confidence)};"></div></div>
+            <div class="rc-note">${escapeHtml(c.exchanges[c.exchanges.length-1]?.note || "Not yet challenged.")}</div>
+          </div>`).join('') : `<div class="empty-chat">Everything held up. Strong session.</div>`}
+      </div>
+    </div>
+
+    <h3 style="text-transform:uppercase; letter-spacing:.04em; font-size:14px; color:var(--ink-dim); font-family:var(--font-body); font-weight:700; margin-bottom:12px;">Strengths</h3>
+    <ul class="recommend-list" style="margin-bottom:24px;">${(rep.strengths||[]).map(s=>`<li style="border-left-color:var(--accent); background:var(--accent-soft);">${escapeHtml(s)}</li>`).join('')}</ul>
+
+    <h3 style="text-transform:uppercase; letter-spacing:.04em; font-size:14px; color:var(--ink-dim); font-family:var(--font-body); font-weight:700; margin-bottom:12px;">Risk areas</h3>
+    <ul class="recommend-list" style="margin-bottom:24px;">${(rep.risk_areas||[]).map(s=>`<li style="border-left-color:var(--danger); background:var(--danger-soft);">${escapeHtml(s)}</li>`).join('')}</ul>
+
+    <h3 style="text-transform:uppercase; letter-spacing:.04em; font-size:14px; color:var(--ink-dim); font-family:var(--font-body); font-weight:700; margin-bottom:12px;">How to strengthen before the real interview</h3>
+    <ul class="recommend-list">${(rep.recommendations||[]).map(r=>`<li><strong>${escapeHtml(r.claim)}:</strong> ${escapeHtml(r.advice)}</li>`).join('')}</ul>
+
+    <div class="report-footer">
+      <button class="btn primary" id="exportReportBtn">Export report (JSON)</button>
+      <button class="btn subtle" id="backToInterviewBtn">Back to interview</button>
+    </div>
+  `;
+  $("exportReportBtn").addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify({claims: state.claims, report: rep}, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download='defense-report.json'; a.click();
+    URL.revokeObjectURL(url);
+  });
+  $("backToInterviewBtn").addEventListener('click', ()=> showView("interview"));
+}
+
+/* ================= SESSION PERSISTENCE ================= */
+function saveSession(finished){
+  try{
+    const sessions = JSON.parse(localStorage.getItem(LS_SESSIONS) || "[]");
+    const idx = sessions.findIndex(s=>s.sessionId===state.sessionId);
+    const record = {
+      sessionId: state.sessionId, startedAt: state.startedAt, updatedAt: new Date().toISOString(),
+      resumeText: state.resumeText, claims: state.claims, finished: !!finished
+    };
+    if(idx>=0){ sessions[idx] = record; } else { sessions.unshift(record); }
+    localStorage.setItem(LS_SESSIONS, JSON.stringify(sessions.slice(0,20)));
+  }catch(e){ /* storage may be full or unavailable — fail silently */ }
+}
+
+function loadSessionHistory(){
+  let sessions = [];
+  try{ sessions = JSON.parse(localStorage.getItem(LS_SESSIONS) || "[]"); }catch(e){}
+  if(sessions.length===0) return;
+  $("sessionHistoryWrap").classList.remove('hidden');
+  $("sessionHistoryList").innerHTML = sessions.map(s=>{
+    const avg = s.claims.length ? Math.round(s.claims.reduce((a,c)=>a+c.confidence,0)/s.claims.length) : 0;
+    return `<div class="session-item">
+      <div>
+        <div>${s.claims.length} claims &middot; ${avg}% avg confidence ${s.finished? '&middot; report generated':''}</div>
+        <div class="si-meta">${new Date(s.updatedAt).toLocaleString()}</div>
+      </div>
+      <button class="btn small" data-resume="${s.sessionId}">Resume</button>
+    </div>`;
+  }).join('');
+  $("sessionHistoryList").querySelectorAll('[data-resume]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const s = sessions.find(x=>x.sessionId===btn.dataset.resume);
+      if(!s) return;
+      state = {resumeText:s.resumeText, claims:s.claims, activeClaimId:null, sessionId:s.sessionId, startedAt:s.startedAt};
+      renderClaimsList();
+      selectClaimSilent(state.claims[0]?.id);
+      showView("interview");
+      updateDashboard();
+    });
+  });
+}
+function selectClaimSilent(id){
+  if(!id) return;
+  state.activeClaimId = id;
+  renderClaimsList();
+  const claim = state.claims.find(c=>c.id===id);
+  renderClaimBanner(claim);
+  renderChat(claim);
+}
+
+/* ================= START OVER ================= */
+$("startOverBtn").addEventListener('click', ()=>{
+  if(confirm("Start a new session? Your current progress is already saved locally and can be resumed later.")){
+    state = {resumeText:"", claims:[], activeClaimId:null, sessionId:null, startedAt:null};
+    $("resumeText").value = "";
+    showView("upload");
+    loadSessionHistory();
+  }
+});
+
+/* ================= HELP MODAL ================= */
+function openModal(id){ $(id).classList.remove('hidden'); }
+function closeModal(id){ $(id).classList.add('hidden'); }
+$("helpBtn").addEventListener('click', ()=> openModal('helpOverlay'));
+document.querySelectorAll('[data-close]').forEach(el=> el.addEventListener('click', ()=> closeModal(el.dataset.close)));
+document.querySelectorAll('.modal-overlay').forEach(ov=> ov.addEventListener('click', (e)=>{ if(e.target===ov) closeModal(ov.id); }));
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ document.querySelectorAll('.modal-overlay').forEach(o=>o.classList.add('hidden')); } });
+
+/* ================= INIT ================= */
+showView("upload");
+loadSessionHistory();
+
+})();
+</script>
+</body>
+</html>
